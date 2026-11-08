@@ -137,6 +137,7 @@ jobs:
           python3 tools/build083_bios_watchdog.py
           python3 tools/build084_ee_ips.py
           grep -nE 'run_batch|log_stop|render_emu|instructions|ui_now_us|ips_' src/PS2-PS3-Bringup-035-SOURCE/source/emu_ui.inc | tail -85
+          python3 -m py_compile tools/build084_ee_ips.py
           python3 - <<'PY'
           from pathlib import Path
           p=Path('src/PS2-PS3-Bringup-035-SOURCE/source/emu_core.cpp')
