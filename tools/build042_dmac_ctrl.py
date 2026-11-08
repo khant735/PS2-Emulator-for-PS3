@@ -11,8 +11,8 @@ h=root/"include/emu_core.h"
 replace_once(h,"uint32_t gif_mode,gif_pause;","uint32_t dmac_ctrl;uint64_t dmac_ctrl_writes,dmac_ctrl_reads;uint32_t gif_mode,gif_pause;")
 p=root/"source/emu_core.cpp"
 replace_once(p,"intc_stat=intc_mask=0;dve.reset();gif_mode=gif_pause=0;","intc_stat=intc_mask=0;dve.reset();dmac_ctrl=0;dmac_ctrl_writes=dmac_ctrl_reads=0;gif_mode=gif_pause=0;")
-replace_once(p,"bool Core::mmioRead(uint32_t a,unsigned size,uint64_t&v){","bool Core::mmioRead(uint32_t a,unsigned size,uint64_t&v){\n if(a==0x10000010u && size==4){v=dmac_ctrl;++dmac_ctrl_reads;return true;}")
-replace_once(p,"bool Core::mmioWrite(uint32_t a,unsigned size,uint64_t v){","bool Core::mmioWrite(uint32_t a,unsigned size,uint64_t v){\n if(a==0x10000010u && size==4){dmac_ctrl=uint32_t(v);++dmac_ctrl_writes;return true;}")
+replace_once(p," // Exact unknown IOP probe only: compatibility value, not verified hardware."," if(size==4&&p==0x10000010u){v=dmac_ctrl;++dmac_ctrl_reads;return true;}\n // Exact unknown IOP probe only: compatibility value, not verified hardware.")
+replace_once(p," // Record the low-page privileged video registers; no display side effects."," if(size==4&&p==0x10000010u){dmac_ctrl=uint32_t(v);++dmac_ctrl_writes;return true;}\n // Record the low-page privileged video registers; no display side effects.")
 replace_once(p,'fprintf(f,"GIF control subset','fprintf(f,"EE DMAC D_CTRL storage only (no DMA/IRQ): CTRL=%08X WRITES=%llu READS=%llu\\n",dmac_ctrl,(unsigned long long)dmac_ctrl_writes,(unsigned long long)dmac_ctrl_reads);\n fprintf(f,"GIF control subset')
 ui=root/"source/emu_ui.inc"
 replace_once(ui,"BUILD 041 - GIF FIFO INGRESS","BUILD 042 - EE DMAC CONTROL")
