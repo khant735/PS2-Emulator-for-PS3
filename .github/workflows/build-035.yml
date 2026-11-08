@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 036 (IOP Register Recovery)
+name: PS2 Emulator Build 037 (Auto Reports)
 
 on:
   workflow_dispatch:
@@ -7,6 +7,7 @@ on:
       - 'PS2-PS3-Bringup-035-SOURCE.zip'
       - '.github/workflows/build-035.yml'
       - 'tools/restore-build034-iop-test.py'
+      - 'tools/build037_auto_reports.py'
 
 permissions:
   contents: read
@@ -57,7 +58,8 @@ jobs:
           PY
           test -f src/PS2-PS3-Bringup-035-SOURCE/Makefile
           python3 tools/restore-build034-iop-test.py
-          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-036-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
+          python3 tools/build037_auto_reports.py
+          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-037-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
           echo 'Recovered Build 034 register test applied to Build 035 source tree'
 
       - name: Configure and compile
@@ -95,12 +97,12 @@ jobs:
           mkdir -p artifacts
           cp -f build035.log artifacts/ 2>/dev/null || true
           find src/PS2-PS3-Bringup-035-SOURCE -maxdepth 2 -type f \( -name '*.elf' -o -name '*.self' -o -name '*.pkg' -o -name '*.map' \) -exec cp -f '{}' artifacts/ \; 2>/dev/null || true
-          cp -f PS2-PS3-Bringup-036-SOURCE.zip artifacts/ 2>/dev/null || true
+          cp -f PS2-PS3-Bringup-037-SOURCE.zip artifacts/ 2>/dev/null || true
 
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PS2-Emulator-Build-036
+          name: PS2-Emulator-Build-037
           path: artifacts/
           if-no-files-found: warn
