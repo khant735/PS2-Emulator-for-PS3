@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 080 (EE SIF F260 diagnostic)
+name: PS2 Emulator Build 080 (EE SIF F260 diagnostic retry)
 
 on:
   workflow_dispatch:
