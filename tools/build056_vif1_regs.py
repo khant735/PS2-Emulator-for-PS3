@@ -28,10 +28,10 @@ for method,body in [
   return true;
  }
 ''')]:
- pattern=r"(bool\\s+Core::"+method+r"\\s*\\([^)]*\\)\\s*\\{)"
+ pattern=r"(bool\s+Core::"+method+r"\s*\([^)]*\)\s*\{)"
  matches=list(re.finditer(pattern,s))
  if len(matches)!=1:raise SystemExit(f"Build 056 cannot locate {method}: {len(matches)}")
- m=matches[0];s=s[:m.end()]+"\\n"+body+s[m.end():]
+ m=matches[0];s=s[:m.end()]+"\n"+body+s[m.end():]
 p.write_text(s)
 change(p,'fprintf(f,"VU1 micro 16KiB SD_WRITES=', 'fprintf(f,"VIF1 register subset (no FIFO/DMA/IRQ): WRITES=%llu READS=%llu FBRST_WRITES=%llu LAST_OFFSET=%02X LAST_VALUE=%08X STAT=%08X FBRST=%08X\\n",(unsigned long long)vif1_writes,(unsigned long long)vif1_reads,(unsigned long long)vif1_fbrst_writes,vif1_last_offset,vif1_last_value,vif1_regs[0],vif1_regs[1]);\n fprintf(f,"VU1 micro 16KiB SD_WRITES=')
 change(root/"source/emu_ui.inc","BUILD 055 - VU1 MICRO RAM","BUILD 056 - VIF1 REGISTERS")
