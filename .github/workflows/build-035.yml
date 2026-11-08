@@ -1,0 +1,96 @@
+name: PS2 Emulator Build 035
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'PS2-PS3-Bringup-035-SOURCE.zip'
+      - '.github/workflows/build-035.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zstd make python3 libelf-dev
+
+      - name: Verify and extract PS3DEV toolchains
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/toolchains"
+          cd "$RUNNER_TEMP/toolchains"
+          BASE="https://github.com/khant735/PS3-PSU-Manager/releases/download/ps3dev-verified-toolchain"
+          curl --fail --location --retry 4 -o ps3dev_psl1ght_full_toolchain.tar.zst "$BASE/ps3dev_psl1ght_full_toolchain.tar.zst"
+          curl --fail --location --retry 4 -o ps3dev_ppu_compiler_cgcomp.tar.zst "$BASE/ps3dev_ppu_compiler_cgcomp.tar.zst"
+          echo "034747ab869247ffed67b50a8776779bb7ac65fe1a9ebc0a58a0058aab6f8710  ps3dev_psl1ght_full_toolchain.tar.zst" | sha256sum -c -
+          echo "95f8f0a463c0a68177ada128273ec026481ec0b31fce3481c74e0eccb7e12e88  ps3dev_ppu_compiler_cgcomp.tar.zst" | sha256sum -c -
+          for f in *.tar.zst; do
+            echo "Archive layout for $f:"
+            tar --zstd -tf "$f" | head -30 || true
+          done
+          mkdir -p "$RUNNER_TEMP/ps3toolchain"
+          for f in *.tar.zst; do tar --zstd -xf "$f" -C "$RUNNER_TEMP/ps3toolchain"; done
+          echo "Toolchain executables:"
+          find "$RUNNER_TEMP/ps3toolchain" -type f \( -name 'ppu-gcc' -o -name 'ppu-g++' -o -name 'make_pkg' -o -name 'make_self_npdrm' \) -print
+          echo "PSL1GHT rules:"
+          find "$RUNNER_TEMP/ps3toolchain" -name ppu_rules -print
+
+      - name: Unpack Build 035 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s PS2-PS3-Bringup-035-SOURCE.zip || { echo "::error::Upload PS2-PS3-Bringup-035-SOURCE.zip to the repository root"; exit 1; }
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile("PS2-PS3-Bringup-035-SOURCE.zip") as z:
+              z.extractall("src")
+          PY
+          test -f src/PS2-PS3-Bringup-035-SOURCE/Makefile
+
+      - name: Configure and compile
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/ps3toolchain"
+          RULES="$(find "$ROOT" -type f -name ppu_rules -print -quit)"
+          test -n "$RULES" || { echo "::error::PSL1GHT ppu_rules missing"; exit 1; }
+          export PSL1GHT="$(dirname "$RULES")"
+          export PS3DEV="$(dirname "$(dirname "$PSL1GHT")")"
+          export PATH="$(find "$ROOT" -type f -name ppu-gcc -printf '%h\n' | head -1):$PS3DEV/bin:$PSL1GHT/bin:$PATH"
+          echo "PS3DEV=$PS3DEV"
+          echo "PSL1GHT=$PSL1GHT"
+          command -v ppu-gcc
+          ppu-gcc --version | head -1
+          cd src/PS2-PS3-Bringup-035-SOURCE
+          make -j2 2>&1 | tee "$GITHUB_WORKSPACE/build035.log"
+          if command -v make_self_npdrm >/dev/null 2>&1 && command -v make_pkg >/dev/null 2>&1; then
+            make pkg 2>&1 | tee -a "$GITHUB_WORKSPACE/build035.log"
+          else
+            echo "::warning::SELF/PKG packaging tools not on PATH; ELF may still be available"
+          fi
+
+      - name: Collect output
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cp -f build035.log artifacts/ 2>/dev/null || true
+          find src/PS2-PS3-Bringup-035-SOURCE -maxdepth 2 -type f \( -name '*.elf' -o -name '*.self' -o -name '*.pkg' -o -name '*.map' \) -exec cp -f '{}' artifacts/ \; 2>/dev/null || true
+          cp -f PS2-PS3-Bringup-035-SOURCE.zip artifacts/ 2>/dev/null || true
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS2-Emulator-Build-035
+          path: artifacts/
+          if-no-files-found: warn
