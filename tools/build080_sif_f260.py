@@ -29,6 +29,6 @@ for method,body in [
  if len(matches)!=1:raise SystemExit(f"Build 080 cannot locate {method}: {len(matches)}")
  m=matches[0];s=s[:m.end()]+"\n"+body+s[m.end():]
 p.write_text(s)
-change(p,'fprintf(f,"EE SIF CTRL 1000F240 experimental latch:', 'fprintf(f,"EE SIF 1000F260 experimental latch (no IOP effects): VALUE=%08X READS=%llu WRITES=%llu LAST_PC=%08X LAST_WRITE=%08X\\n",ee_sif_f260,(unsigned long long)ee_sif_f260_reads,(unsigned long long)ee_sif_f260_writes,ee_sif_f260_last_pc,ee_sif_f260_last_value);\n fprintf(f,"EE SIF CTRL 1000F240 experimental latch:')
+change(p,'fprintf(f,"EE SDL/SDR little-endian stores:', 'fprintf(f,"EE SIF 1000F260 experimental latch (no IOP effects): VALUE=%08X READS=%llu WRITES=%llu LAST_PC=%08X LAST_WRITE=%08X\\n",ee_sif_f260,(unsigned long long)ee_sif_f260_reads,(unsigned long long)ee_sif_f260_writes,ee_sif_f260_last_pc,ee_sif_f260_last_value);\n fprintf(f,"EE SDL/SDR little-endian stores:')
 change(root/"source/emu_ui.inc","BUILD 079 - EE SIF ALIAS","BUILD 080 - EE SIF F260")
 print("Build 080 exact SIF F260 diagnostic latch applied")
