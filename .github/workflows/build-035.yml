@@ -51,8 +51,8 @@ jobs:
           mkdir -p "$RUNNER_TEMP/toolchains"
           cd "$RUNNER_TEMP/toolchains"
           BASE="https://github.com/khant735/PS3-PSU-Manager/releases/download/ps3dev-verified-toolchain"
-          curl --fail --location --retry 4 -o ps3dev_psl1ght_full_toolchain.tar.zst "$BASE/ps3dev_psl1ght_full_toolchain.tar.zst"
-          curl --fail --location --retry 4 -o ps3dev_ppu_compiler_cgcomp.tar.zst "$BASE/ps3dev_ppu_compiler_cgcomp.tar.zst"
+          curl --fail --location --retry 10 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 180 -o ps3dev_psl1ght_full_toolchain.tar.zst "$BASE/ps3dev_psl1ght_full_toolchain.tar.zst"
+          curl --fail --location --retry 10 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 180 -o ps3dev_ppu_compiler_cgcomp.tar.zst "$BASE/ps3dev_ppu_compiler_cgcomp.tar.zst"
           echo "034747ab869247ffed67b50a8776779bb7ac65fe1a9ebc0a58a0058aab6f8710  ps3dev_psl1ght_full_toolchain.tar.zst" | sha256sum -c -
           echo "95f8f0a463c0a68177ada128273ec026481ec0b31fce3481c74e0eccb7e12e88  ps3dev_ppu_compiler_cgcomp.tar.zst" | sha256sum -c -
           for f in *.tar.zst; do
