@@ -10,7 +10,7 @@ def replace_once(path,old,new):
 h=root/"include/emu_core.h"
 replace_once(h,"uint32_t gif_mode,gif_pause;","uint32_t dmac_ctrl;uint64_t dmac_ctrl_writes,dmac_ctrl_reads;uint32_t gif_mode,gif_pause;")
 p=root/"source/emu_core.cpp"
-replace_once(p,"intc_stat=intc_mask=0;dve.reset();gif_mode=gif_pause=0;gif_resets=0;","intc_stat=intc_mask=0;dve.reset();dmac_ctrl=0;dmac_ctrl_writes=dmac_ctrl_reads=0;gif_mode=gif_pause=0;gif_resets=0;")
+replace_once(p,"gif_mode=gif_pause=0;gif_resets=gif_fifo_qwords=0;","dmac_ctrl=0;dmac_ctrl_writes=dmac_ctrl_reads=0;gif_mode=gif_pause=0;gif_resets=gif_fifo_qwords=0;")
 replace_once(p," if(size!=4)return false;\n if(p==0x10003020u)"," if(size!=4)return false;\n if(p==0x10000010u){v=dmac_ctrl;++dmac_ctrl_reads;return true;}\n if(p==0x10003020u)")
 replace_once(p," // Record the low-page privileged video registers; no display side effects."," if(size==4&&p==0x10000010u){dmac_ctrl=uint32_t(v);++dmac_ctrl_writes;return true;}\n // Record the low-page privileged video registers; no display side effects.")
 replace_once(p,'fprintf(f,"GIF control subset','fprintf(f,"EE DMAC D_CTRL storage only (no DMA/IRQ): CTRL=%08X WRITES=%llu READS=%llu\\n",dmac_ctrl,(unsigned long long)dmac_ctrl_writes,(unsigned long long)dmac_ctrl_reads);\n fprintf(f,"GIF control subset')
