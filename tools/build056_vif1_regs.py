@@ -14,14 +14,14 @@ change(p,"memset(vu1_micro,0,sizeof(vu1_micro));","memset(vif1_regs,0,sizeof(vif
 s=p.read_text()
 # Match the actual MMIO function definitions and inject only inside those bodies.
 for method,body in [
- ("mmioRead",''' if(size==4 && p>=0x10003C00u && p<=0x10003CE0u && ((p-0x10003C00u)&15u)==0){
-  unsigned idx=(p-0x10003C00u)/16u;
+ ("mmioRead",''' if(size==4 && addr>=0x10003C00u && addr<=0x10003CE0u && ((addr-0x10003C00u)&15u)==0){
+  unsigned idx=(addr-0x10003C00u)/16u;
   // VIF1 status and control registers: storage-only, no synthetic completion.
   v=vif1_regs[idx];++vif1_reads;vif1_last_offset=idx*16u;return true;
  }
 '''),
- ("mmioWrite",''' if(size==4 && p>=0x10003C00u && p<=0x10003CE0u && ((p-0x10003C00u)&15u)==0){
-  unsigned idx=(p-0x10003C00u)/16u;
+ ("mmioWrite",''' if(size==4 && addr>=0x10003C00u && addr<=0x10003CE0u && ((addr-0x10003C00u)&15u)==0){
+  unsigned idx=(addr-0x10003C00u)/16u;
   vif1_regs[idx]=uint32_t(v);++vif1_writes;
   vif1_last_offset=idx*16u;vif1_last_value=uint32_t(v);
   if(idx==1)++vif1_fbrst_writes; // FBRST command observed; no fake reset or FIFO processing.
