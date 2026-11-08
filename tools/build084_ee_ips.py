@@ -40,10 +40,10 @@ change('return core->writeReport(p,guest_label);',"""if(!core->writeReport(p,gue
  fprintf(f,"EE PERFORMANCE: RETIRED=%llu ELAPSED_US=%llu IPS_LATEST=%llu IPS_AVERAGE=%llu IPS_PEAK=%llu SAMPLE_PERIOD_US=1000000\\n",
   (unsigned long long)core->instructions,ips_elapsed_us,ips_current,ips_average(),ips_peak);
  bool ok=!ferror(f);if(fflush(f))ok=false;if(fclose(f))ok=false;return ok;""")
-change('if(core->stop!=Core::NONE){auto_run=false;', 'ips_update();\n if(core->stop!=Core::NONE){auto_run=false;')
+
 change('if(ok)watchdog_bios=bios;', 'if(ok){watchdog_bios=bios;ips_reset();}')
-change('snprintf(b,sizeof(b),"EXECUTED %llu INSTRUCTIONS",(unsigned long long)core->instructions);row(2,b,false);',"""snprintf(b,sizeof(b),"EXECUTED %llu  IPS %llu  AVG %llu",(unsigned long long)core->instructions,ips_current,ips_average());row(2,b,false);""")
-change('if(auto_run)run_batch(settings.batch);dirty=true;render_emu();','if(auto_run)run_batch(settings.batch);ips_update();dirty=true;render_emu();')
+
+
 change('BUILD 083 - BIOS WATCHDOG','BUILD 084 - EE IPS COUNTER')
 p.write_text(s)
 print('Build 084 EE IPS overlay and trace metrics applied')
