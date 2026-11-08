@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 039 (DVE Fault Diagnostics)
+name: PS2 Emulator Build 040 (DVE Command 81)
 
 on:
   workflow_dispatch:
@@ -10,6 +10,8 @@ on:
       - 'tools/build037_auto_reports.py'
       - 'tools/build038_preserve_reports.py'
       - 'tools/build039_dve_fault_diagnostics.py'
+      - 'tools/build040_dve_mode43.py'
+      - 'tools/build040_dve_regression.cpp'
 
 permissions:
   contents: read
@@ -63,7 +65,10 @@ jobs:
           python3 tools/build037_auto_reports.py
           python3 tools/build038_preserve_reports.py
           python3 tools/build039_dve_fault_diagnostics.py
-          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-039-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
+          python3 tools/build040_dve_mode43.py
+          g++ -std=c++11 -Wall -Wextra -Werror -Isrc/PS2-PS3-Bringup-035-SOURCE/include tools/build040_dve_regression.cpp -o /tmp/build040_dve_regression
+          /tmp/build040_dve_regression
+          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-040-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
           echo 'Recovered Build 034 register test applied to Build 035 source tree'
 
       - name: Configure and compile
@@ -101,12 +106,12 @@ jobs:
           mkdir -p artifacts
           cp -f build035.log artifacts/ 2>/dev/null || true
           find src/PS2-PS3-Bringup-035-SOURCE -maxdepth 2 -type f \( -name '*.elf' -o -name '*.self' -o -name '*.pkg' -o -name '*.map' \) -exec cp -f '{}' artifacts/ \; 2>/dev/null || true
-          cp -f PS2-PS3-Bringup-039-SOURCE.zip artifacts/ 2>/dev/null || true
+          cp -f PS2-PS3-Bringup-040-SOURCE.zip artifacts/ 2>/dev/null || true
 
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PS2-Emulator-Build-039
+          name: PS2-Emulator-Build-040
           path: artifacts/
           if-no-files-found: warn
