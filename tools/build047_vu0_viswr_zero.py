@@ -15,7 +15,7 @@ p=root/"source/emu_core.cpp"
 change(p,"memset(vu0_control,0,sizeof(vu0_control));","memset(vu0_control,0,sizeof(vu0_control));memset(vu0_data,0,sizeof(vu0_data));vu0_viswr_zero_writes=0;")
 change(p,'else if(rs==6){vu0_control[rd]=uint32_t(b);++vu0_ctc2_writes;write=false;}',
 '''else if(rs==6){vu0_control[rd]=uint32_t(b);++vu0_ctc2_writes;write=false;}
-  else if(rs==24 && rt==0 && rd==0 && ((op==18)) && ((0x4B000BFFu & 0x1FFFFFFu)==0x1000BFFu)){
+  else if(rs==24 && rt==0 && rd==0 && fn==63 && sa==15){
    // COP2 SPECIAL2 index 63: VISWR.x VF0,(VI0).
    // VF0.x is the hardwired zero constant; VI0 is the hardwired zero address.
    // VU0 data memory is 4 KiB. Only the observed zero-register case is supported.
