@@ -17,14 +17,14 @@ for method,body in (
  ("mmioWrite","if(p==0x10000010u && size==4){dmac_ctrl=uint32_t(value);++dmac_ctrl_writes;return true;}"),
  ("mmioRead","if(p==0x10000010u && size==4){value=dmac_ctrl;++dmac_ctrl_reads;return true;}")
 ):
- matches=list(re.finditer(r'bool\\s+Core::'+method+r'\\s*\\(([^)]*)\\)\\s*\\{',s))
+ matches=list(re.finditer(r'bool\s+Core::'+method+r'\s*\\(([^)]*)\\)\s*\\{',s))
  if len(matches)!=1:raise SystemExit("Cannot locate unique "+method+" signature")
  m=matches[0];params=m.group(1)
  # The source's existing MMIO handler uses p for physical address, v for value.
  # Bind from parameter declarations so an unsupported signature fails safely.
  fields=[x.strip() for x in params.split(',')]
  if len(fields)<3:raise SystemExit("Unexpected "+method+" params: "+params)
- def name(field):return re.search(r'([A-Za-z_]\\w*)\\s*$',field).group(1)
+ def name(field):return re.search(r'([A-Za-z_]\w*)\s*$',field).group(1)
  names=[name(x) for x in fields]
  addr=names[0]
  width=next((n for n in names if n in ("size","bytes","width")),None)
