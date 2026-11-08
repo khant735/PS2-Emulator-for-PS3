@@ -14,14 +14,14 @@ change(p,"memset(vu1_micro,0,sizeof(vu1_micro));","memset(vif1_regs,0,sizeof(vif
 s=p.read_text()
 # Match the actual MMIO function definitions and inject only inside those bodies.
 for method,body in [
- ("mmioRead",''' if(size==4 && address>=0x10003C00u && address<=0x10003CE0u && ((address-0x10003C00u)&15u)==0){
-  unsigned idx=(address-0x10003C00u)/16u;
+ ("mmioRead",''' if(size==4 && p>=0x10003C00u && p<=0x10003CE0u && ((p-0x10003C00u)&15u)==0){
+  unsigned idx=(p-0x10003C00u)/16u;
   // VIF1 status and control registers: storage-only, no synthetic completion.
   v=vif1_regs[idx];++vif1_reads;vif1_last_offset=idx*16u;return true;
  }
 '''),
- ("mmioWrite",''' if(size==4 && address>=0x10003C00u && address<=0x10003CE0u && ((address-0x10003C00u)&15u)==0){
-  unsigned idx=(address-0x10003C00u)/16u;
+ ("mmioWrite",''' if(size==4 && p>=0x10003C00u && p<=0x10003CE0u && ((p-0x10003C00u)&15u)==0){
+  unsigned idx=(p-0x10003C00u)/16u;
   vif1_regs[idx]=uint32_t(v);++vif1_writes;
   vif1_last_offset=idx*16u;vif1_last_value=uint32_t(v);
   if(idx==1)++vif1_fbrst_writes; // FBRST command observed; no fake reset or FIFO processing.
@@ -31,7 +31,7 @@ for method,body in [
  pattern=r"(bool\s+Core::"+method+r"\s*\([^)]*\)\s*\{)"
  matches=list(re.finditer(pattern,s))
  if len(matches)!=1:raise SystemExit(f"Build 056 cannot locate {method}: {len(matches)}")
- m=matches[0];s=s[:m.end()]+"\n"+body+s[m.end():]
+ m=matches[0];s=s[:m.end()]+"\n uint32_t p=0; if(!translate(a,size,method==\"mmioWrite\",p))return false;\n"+body+s[m.end():]
 p.write_text(s)
 change(p,'fprintf(f,"VU1 micro 16KiB SD_WRITES=', 'fprintf(f,"VIF1 register subset (no FIFO/DMA/IRQ): WRITES=%llu READS=%llu FBRST_WRITES=%llu LAST_OFFSET=%02X LAST_VALUE=%08X STAT=%08X FBRST=%08X\\n",(unsigned long long)vif1_writes,(unsigned long long)vif1_reads,(unsigned long long)vif1_fbrst_writes,vif1_last_offset,vif1_last_value,vif1_regs[0],vif1_regs[1]);\n fprintf(f,"VU1 micro 16KiB SD_WRITES=')
 change(root/"source/emu_ui.inc","BUILD 055 - VU1 MICRO RAM","BUILD 056 - VIF1 REGISTERS")
