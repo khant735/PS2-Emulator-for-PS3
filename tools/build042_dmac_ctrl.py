@@ -10,14 +10,14 @@ s=s.replace(anchor,"uint32_t dmac_ctrl;uint64_t dmac_ctrl_writes,dmac_ctrl_reads
 h.write_text(s)
 p=root/"source/emu_core.cpp";s=p.read_text()
 anchor="gif_mode=gif_pause=0;"
-assert s.count(anchor)==1
-s=s.replace(anchor,"dmac_ctrl=0;dmac_ctrl_writes=dmac_ctrl_reads=0;"+anchor)
+if s.count(anchor)<1:raise SystemExit("No GIF reset assignment found")
+s=s.replace(anchor,"dmac_ctrl=0;dmac_ctrl_writes=dmac_ctrl_reads=0;"+anchor,1)
 # Discover the exact method signature, rather than assuming an argument name.
 for method,body in (
  ("mmioWrite","if(p==0x10000010u && size==4){dmac_ctrl=uint32_t(value);++dmac_ctrl_writes;return true;}"),
  ("mmioRead","if(p==0x10000010u && size==4){value=dmac_ctrl;++dmac_ctrl_reads;return true;}")
 ):
- matches=list(re.finditer(r'bool\s+Core::'+method+r'\s*\\(([^)]*)\\)\s*\\{',s))
+  matches=list(re.finditer(r'bool\s+Core::'+method+r'\s*\(([^)]*)\)\s*\{',s))
  if len(matches)!=1:raise SystemExit("Cannot locate unique "+method+" signature")
  m=matches[0];params=m.group(1)
  # The source's existing MMIO handler uses p for physical address, v for value.
