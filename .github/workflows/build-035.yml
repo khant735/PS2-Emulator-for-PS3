@@ -79,11 +79,10 @@ jobs:
           command -v ppu-gcc >/dev/null 2>&1 || { echo "::error::ppu-gcc not on PATH"; exit 1; }
           cd src/PS2-PS3-Bringup-035-SOURCE
           make -j2 2>&1 | tee "$GITHUB_WORKSPACE/build035.log"
-          if command -v make_self_npdrm >/dev/null 2>&1 && command -v make_pkg >/dev/null 2>&1; then
-            make pkg 2>&1 | tee -a "$GITHUB_WORKSPACE/build035.log"
-          else
-            echo "::warning::SELF/PKG packaging tools not on PATH; ELF may still be available"
-          fi
+          echo "Available packaging tools:"
+          find "$PS3DEV" -type f \( -iname '*pkg*' -o -name 'sfo.py' \) | head -35 || true
+          make pkg 2>&1 | tee -a "$GITHUB_WORKSPACE/build035.log"
+          test -s ps2emu_bringup_035.pkg || { echo "::error::PKG was not generated"; exit 1; }
 
       - name: Collect output
         if: always()
