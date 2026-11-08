@@ -21,11 +21,9 @@ change(p," }else if(op==27){",''' }else if(op==44||op==45){
   else if(!mmioRead(aligned,8,old))return memoryHalt(aligned,8,true,false);
   uint64_t merged=old;
   for(unsigned i=0;i<8;i++){
-   if(op==44 ? i>=offset : i<=offset){
-    const unsigned src=op==44 ? i+7u-offset : i+7u-offset;
-    // SDL: source high bytes; SDR: source low bytes.
-    const unsigned sourceByte=op==44 ? i+7u-offset : i+7u-offset;
-    (void)src;
+   if(op==44 ? i<=offset : i>=offset){
+    // SDL takes high register bytes; SDR takes low register bytes.
+    const unsigned sourceByte=op==44 ? i+7u-offset : i-offset;
     const uint64_t mask=uint64_t(255)<<(8*i);
     merged=(merged&~mask)|(((b>>(8*sourceByte))&255u)<<(8*i));
    }
