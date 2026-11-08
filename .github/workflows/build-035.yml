@@ -63,13 +63,20 @@ jobs:
           ROOT="$RUNNER_TEMP/ps3toolchain"
           RULES="$(find "$ROOT" -type f -name ppu_rules -print -quit)"
           test -n "$RULES" || { echo "::error::PSL1GHT ppu_rules missing"; exit 1; }
-          export PSL1GHT="$(dirname "$RULES")"
-          export PS3DEV="$(dirname "$(dirname "$PSL1GHT")")"
-          export PATH="$(find "$ROOT" -type f -name ppu-gcc -printf '%h\n' | head -1):$PS3DEV/bin:$PSL1GHT/bin:$PATH"
+          export PS3DEV="$ROOT/ps3dev"
+          export PSL1GHT="$PS3DEV"
+          export PATH="$PS3DEV/bin:$PS3DEV/ppu/bin:$PS3DEV/spu/bin:$PATH"
           echo "PS3DEV=$PS3DEV"
           echo "PSL1GHT=$PSL1GHT"
-          command -v ppu-gcc
-          ppu-gcc --version | head -1
+          ls -la "$PS3DEV/ppu/bin" | head -45
+          ls -la "$PS3DEV/bin" | head -45
+          echo "Compiler candidates:"
+          command -v ppu-gcc || true
+          command -v powerpc64-ps3-elf-gcc || true
+          for compiler in ppu-gcc powerpc64-ps3-elf-gcc; do
+            if command -v "$compiler" >/dev/null 2>&1; then "$compiler" --version | head -1; fi
+          done
+          command -v ppu-gcc >/dev/null 2>&1 || { echo "::error::ppu-gcc not on PATH"; exit 1; }
           cd src/PS2-PS3-Bringup-035-SOURCE
           make -j2 2>&1 | tee "$GITHUB_WORKSPACE/build035.log"
           if command -v make_self_npdrm >/dev/null 2>&1 && command -v make_pkg >/dev/null 2>&1; then
