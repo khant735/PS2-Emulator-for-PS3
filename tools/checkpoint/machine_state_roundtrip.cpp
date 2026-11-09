@@ -19,6 +19,25 @@ int main(){
  assert(ps2state::decode(&good.bytes()[0],good.bytes().size(),decoded));
  assert(decoded.size()==2&&decoded[0].bytes.size()==sizeof(ee));
  assert(!ps2state::complete(decoded)); // Never resume a partial snapshot.
+ const uint32_t ids[]={ps2state::EE_CPU,ps2state::EE_RAM,ps2state::EE_SCRATCH,
+ ps2state::IOP_CPU,ps2state::IOP_RAM,ps2state::SIF_STATE,ps2state::DMAC_STATE,
+ ps2state::INTC_STATE,ps2state::TIMER_STATE,ps2state::GS_STATE,
+ ps2state::GIF_STATE,ps2state::VIF_STATE,ps2state::VU_STATE,
+ ps2state::SPU_STATE,ps2state::CDVD_STATE,ps2state::INPUT_STATE};
+ std::vector<ps2state::Section> all;
+ for(size_t i=0;i<sizeof(ids)/sizeof(ids[0]);++i){
+  ps2state::Section sec;sec.id=ids[i];sec.bytes.push_back((unsigned char)(i+1));
+  all.push_back(sec);
+ }
+ assert(ps2state::complete(all));
+ for(size_t i=0;i<all.size();++i){
+  std::vector<ps2state::Section> missing=all;
+  missing.erase(missing.begin()+i);
+  assert(!ps2state::complete(missing));
+ }
+ all[0].bytes.clear();
+ assert(!ps2state::complete(all));
+
  assert(memcmp(&decoded[0].bytes[0],ee,sizeof(ee))==0);
  assert(memcmp(&decoded[1].bytes[0],iop,sizeof(iop))==0);
  std::vector<unsigned char> damaged=good.bytes();
