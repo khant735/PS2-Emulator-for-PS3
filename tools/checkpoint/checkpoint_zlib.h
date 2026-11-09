@@ -35,7 +35,7 @@ static inline bool write(const char* path,const void* data,size_t size,const uns
  FILE* f=fopen(tmp,"wb");
  bool ok=f && fwrite(&h,1,sizeof(h),f)==sizeof(h) && fwrite(packed,1,len,f)==len;
  if(f && fclose(f)!=0)ok=false;
- if(ok){remove(path);ok=rename(tmp,path)==0;}
+ if(ok){ok=rename(tmp,path)==0;}
  if(!ok)remove(tmp);
  free(tmp);free(packed);return ok;
 }
