@@ -16,13 +16,15 @@ struct Header {
  unsigned char bios_sha256[32];
  uint32_t state_schema;
 };
-static inline bool write(const char* path,const void* data,size_t size,const unsigned char bios[32],uint32_t schema) {
+static inline bool write_with_level(const char* path,const void* data,size_t size,const unsigned char bios[32],uint32_t schema,int level) {
+ // DEFLATE levels 0 (store) through 9 (maximum); reject invalid settings.
+ if(level<0||level>9)return false;
  if(!path||!data||!bios||!schema||size==0||size>MAX_PAYLOAD) return false;
  uLongf bound=compressBound((uLong)size);
  Bytef* packed=(Bytef*)malloc(bound);
  if(!packed) return false;
  uLongf len=bound;
- int rc=compress2(packed,&len,(const Bytef*)data,(uLong)size,1);
+ int rc=compress2(packed,&len,(const Bytef*)data,(uLong)size,level);
  if(rc!=Z_OK||len>UINT32_MAX){free(packed);return false;}
  Header h={}; memcpy(h.magic,"P2STATE1",8);h.version=VERSION;
  h.raw_size=(uint32_t)size;h.compressed_size=(uint32_t)len;
@@ -38,6 +40,9 @@ static inline bool write(const char* path,const void* data,size_t size,const uns
  if(ok){ok=rename(tmp,path)==0;}
  if(!ok)remove(tmp);
  free(tmp);free(packed);return ok;
+}
+static inline bool write(const char* path,const void* data,size_t size,const unsigned char bios[32],uint32_t schema) {
+ return write_with_level(path,data,size,bios,schema,1);
 }
 static inline bool read(const char* path,void* output,size_t expected_size,const unsigned char bios[32],uint32_t schema) {
  if(!path||!output||!bios||!schema||expected_size==0||expected_size>MAX_PAYLOAD)return false;
