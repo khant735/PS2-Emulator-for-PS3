@@ -23,10 +23,10 @@ patch(c,"uint32_t ins=le32(ptr);iop_last_opcode=ins;","""uint32_t ins=le32(ptr);
 patch(c,"if(pa>IOP_RAM||IOP_RAM-pa<4u){","""if(pa==0x1f801010u){
    iop_dma_madr_value=iop_gpr[rt]; // historical variable name; now memory-control latch
    iop_memctrl_last_pc=addr;iop_memctrl_last_value=iop_gpr[rt];
-   ++iop_memctrl_writes;++iop_sw_writes;
+   ++iop_memctrl_writes;
   }else if(pa>IOP_RAM||IOP_RAM-pa<4u){""")
 patch(c,"  uint32_t value=iop_gpr[rt];\n  iop_ram[pa]","  uint32_t value=iop_gpr[rt];\n  if(pa!=0x1f801010u){iop_ram[pa]")
-patch(c,"  ++iop_sw_writes;\n }","  ++iop_sw_writes;}\n }")
+patch(c,"  iop_ram[pa+3]=(unsigned char)(value>>24);","  iop_ram[pa+3]=(unsigned char)(value>>24);}")
 patch(c,'fprintf(f,"BUILD 092 IOP DMA CH0 MADR:', '''fprintf(f,"BUILD 094 IOP MEMORY CONTROL: WRITES=%llu LAST_PC=%08X LAST_VALUE=%08X READS=%llu CURRENT=%08X (timing effects not modeled)\\n",
  (unsigned long long)iop_memctrl_writes,iop_memctrl_last_pc,iop_memctrl_last_value,
  (unsigned long long)iop_dma_madr_reads,iop_dma_madr_value);
