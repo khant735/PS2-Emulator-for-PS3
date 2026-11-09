@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 098 (IOP memory-control 0x1F801004)
+name: PS2 Emulator Build 098 (IOP MMIO 0x1F802070)
 
 on:
   workflow_dispatch:
@@ -43,6 +43,7 @@ on:
       - 'tools/build095_iop_memctrl_1020.py'
       - 'tools/build096_iop_memctrl_101c.py'
       - 'tools/build097_iop_memctrl_1004.py'
+      - 'tools/build098_iop_mmio_2070.py'
 
 permissions:
   contents: read
