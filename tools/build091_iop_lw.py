@@ -7,7 +7,7 @@ def patch(p,a,b):
  s=p.read_text()
  if s.count(a)!=1:raise RuntimeError(f"Build091 anchor {p.name}: {a[:90]!r} count={s.count(a)}")
  p.write_text(s.replace(a,b,1))
-patch(h,"uint64_t iop_slti_executed;","uint64_t iop_slti_executed,iop_lw_reads;uint32_t iop_lw_va,iop_lw_pa,iop_lw_value,iop_lw_reject;")
+patch(h,"iop_slti_executed;","iop_slti_executed,iop_lw_reads;uint32_t iop_lw_va,iop_lw_pa,iop_lw_value,iop_lw_reject;")
 patch(c,"iop_slti_executed=0;","iop_slti_executed=iop_lw_reads=0;iop_lw_va=iop_lw_pa=iop_lw_value=iop_lw_reject=0;")
 patch(c,"else if(op==4||op==5){branch=true;",'''else if(op==35){ // R3000 LW: signed offset, aligned, ROM/RAM only
   uint32_t va=iop_gpr[rs]+(uint32_t)imm,pa=va;
