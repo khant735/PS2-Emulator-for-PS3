@@ -26,10 +26,16 @@ int main(){
  ps2state::SPU_STATE,ps2state::CDVD_STATE,ps2state::INPUT_STATE};
  std::vector<ps2state::Section> all;
  for(size_t i=0;i<sizeof(ids)/sizeof(ids[0]);++i){
-  ps2state::Section sec;sec.id=ids[i];sec.bytes.push_back((unsigned char)(i+1));
+  ps2state::Section sec;sec.id=ids[i];sec.bytes.resize(ps2state::minimum_section_size(ids[i]),(unsigned char)(i+1));
   all.push_back(sec);
  }
  assert(ps2state::complete(all));
+ // Every required section must contain enough data to reject placeholders.
+ for(size_t i=0;i<all.size();++i){
+  std::vector<ps2state::Section> undersized=all;
+  undersized[i].bytes.resize(ps2state::minimum_section_size(ids[i])-1);
+  assert(!ps2state::complete(undersized));
+ }
  for(size_t i=0;i<all.size();++i){
   std::vector<ps2state::Section> missing=all;
   missing.erase(missing.begin()+i);
@@ -50,5 +56,5 @@ int main(){
  assert(ps2state::decode(&restored[0],restored.size(),decoded));
  assert(decoded.size()==2);
  remove("/tmp/ps2-machine-state.bin");
- puts("Machine state stream: bounded sections, duplicate rejection, transactional decode, zlib roundtrip PASS");
+ puts("Machine state stream: bounded sections, section size gates, duplicate rejection, transactional decode, zlib roundtrip PASS");
 }
