@@ -16,6 +16,6 @@ patch(c,'fprintf(f,"BUILD 099 IOP MEMORY CONTROL 1008:', '''fprintf(f,"BUILD 100
  (unsigned long long)iop_memctrl_1000_writes,(unsigned long long)iop_memctrl_1000_reads,
  iop_memctrl_1000_last_pc,iop_memctrl_1000_last_value,iop_memctrl_1000_value);
  fprintf(f,"BUILD 099 IOP MEMORY CONTROL 1008:''')
-patch(c,"(RAM and 1004/1010/101C/1020/2070 diagnostic MMIO; other MMIO rejected)","(RAM and 1000/1004/1008/1010/101C/1020/2070 diagnostic MMIO; other MMIO rejected)")
+patch(c,"(RAM and 1004/1008/1010/101C/1020/2070 diagnostic MMIO; other MMIO rejected)","(RAM and 1000/1004/1008/1010/101C/1020/2070 diagnostic MMIO; other MMIO rejected)")
 patch(u,"BUILD 099 - IOP MEMCTRL 1008","BUILD 100 - IOP MEMCTRL 1000")
 print("Build 100 IOP memory-control 0x1F801000 diagnostic latch applied")
