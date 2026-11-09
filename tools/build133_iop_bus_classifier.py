@@ -28,7 +28,7 @@ patch("&&pa!=0x1f808268u&&pa!=0x1f808240u&&pa!=0x1f808248u&&pa!=0x1f808250u&&pa!
 # Preserve existing individual register read/write side effects. Validate the
 # classifier covers each currently supported boot register at patch time.
 for address in ("8240","8244","8248","824c","8250","8254","8258","8268"):
- if f"0x1f808{address}u" not in s:
+ if f"0x1f80{address}u" not in s:
   raise SystemExit(f"Build133 missing MMIO address {address}")
 patch('fprintf(f,"BUILD 132 IOP MMIO 8254:', '''fprintf(f,"BUILD 133 IOP BUS: strict boot MMIO whitelist=8240,8244,8248,824C,8250,8254,8258,8268; other 82xx unmapped; no hardware side effects\\n");
  fprintf(f,"BUILD 132 IOP MMIO 8254:''')
