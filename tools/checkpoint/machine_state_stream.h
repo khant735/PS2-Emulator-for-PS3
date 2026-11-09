@@ -46,7 +46,8 @@ public:
 static inline bool decode(const void*data,size_t len,std::vector<Section>&dest){
  if(!data||len<20||len>MAX_STREAM_BYTES)return false;
  const unsigned char*p=(const unsigned char*)data,*end=p+len;
- if(memcmp(p,"P2MACH01",8))return false;p+=8;
+ if(memcmp(p,"P2MACH01",8))return false;
+ p+=8;
  uint32_t version=0;if(!get32(p,end,version)||version!=STREAM_VERSION)return false;
  std::vector<Section> tmp;
  while(p<end){
