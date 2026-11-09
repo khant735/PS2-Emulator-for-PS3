@@ -1,5 +1,6 @@
 #include "machine_state_stream.h"
 #include "checkpoint_schema.h"
+#include "checkpoint_restore_stage.h"
 #include "checkpoint_zlib.h"
 #include <assert.h>
 #include <stdio.h>
@@ -30,6 +31,22 @@ int main(){
   all.push_back(sec);
  }
  assert(ps2state::complete(all));
+ // A complete section stream can be staged, but not yet applied to live Core.
+ ps2state::Writer full;
+ for(size_t i=0;i<all.size();++i)
+  assert(full.append(all[i].id,&all[i].bytes[0],all[i].bytes.size()));
+ ps2state::RestoreStage stage;
+ assert(ps2state::prepare_restore(&full.bytes()[0],full.bytes().size(),stage));
+ assert(stage.ready&&stage.find(ps2state::EE_RAM)!=NULL);
+ assert(stage.find(ps2state::IOP_RAM)->bytes.size()==2u*1024u*1024u);
+ // Failure clears previously staged data, preventing stale restore.
+ assert(!ps2state::prepare_restore(&good.bytes()[0],good.bytes().size(),stage));
+ assert(!stage.ready&&stage.find(ps2state::EE_RAM)==NULL);
+ assert(ps2state::prepare_restore(&full.bytes()[0],full.bytes().size(),stage));
+ std::vector<unsigned char> invalid=full.bytes();
+ invalid[0]=0;
+ assert(!ps2state::prepare_restore(&invalid[0],invalid.size(),stage));
+ assert(!stage.ready&&stage.sections.empty());
  // Every required section must contain enough data to reject placeholders.
  for(size_t i=0;i<all.size();++i){
   std::vector<ps2state::Section> undersized=all;
