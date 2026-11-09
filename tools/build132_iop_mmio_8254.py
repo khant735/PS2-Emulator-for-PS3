@@ -19,7 +19,7 @@ patch(c,"if(pa==0x1f80824cu){\n   iop_mmio_824c_value=iop_gpr[rt];", """if(pa==0
    ++iop_mmio_8254_writes;
   }else if(pa==0x1f80824cu){
    iop_mmio_824c_value=iop_gpr[rt];""")
-patch(c,"&&pa!=0x1f808250u&&pa!=0x1f808258u&&pa!=0x1f80824cu){iop_ram[pa]","&&pa!=0x1f808250u&&pa!=0x1f808258u&&pa!=0x1f80824cu&&pa!=0x1f808254u){iop_ram[pa]")
+patch(c,"&&pa!=0x1f808250u&&pa!=0x1f808258u&&pa!=0x1f808244u&&pa!=0x1f80824cu){iop_ram[pa]","&&pa!=0x1f808250u&&pa!=0x1f808258u&&pa!=0x1f808244u&&pa!=0x1f80824cu&&pa!=0x1f808254u){iop_ram[pa]")
 patch(c,"if(!src&&pa==0x1f80824cu){", """if(!src&&pa==0x1f808254u){
     iop_gpr[rt]=iop_mmio_8254_value;iop_lw_value=iop_gpr[rt];
     ++iop_mmio_8254_reads;++iop_lw_reads;iop_lw_reject=0;
