@@ -19,14 +19,14 @@ patch(c,"if(pa==0x1f808244u){\n   iop_mmio_8244_value=iop_gpr[rt];", """if(pa==0
    ++iop_mmio_824c_writes;
   }else if(pa==0x1f808244u){
    iop_mmio_8244_value=iop_gpr[rt];""")
-patch(c,"&&pa!=0x1f808250u&&pa!=0x1f808244u){iop_ram[pa]","&&pa!=0x1f808250u&&pa!=0x1f808244u&&pa!=0x1f80824cu){iop_ram[pa]")
+patch(c,"&&pa!=0x1f808250u&&pa!=0x1f808258u&&pa!=0x1f808244u){iop_ram[pa]","&&pa!=0x1f808250u&&pa!=0x1f808258u&&pa!=0x1f808244u&&pa!=0x1f80824cu){iop_ram[pa]")
 patch(c,"if(!src&&pa==0x1f808244u){", """if(!src&&pa==0x1f80824cu){
     iop_gpr[rt]=iop_mmio_824c_value;iop_lw_value=iop_gpr[rt];
     ++iop_mmio_824c_reads;++iop_lw_reads;iop_lw_reject=0;
    }else if(!src&&pa==0x1f808244u){""")
-patch(c,'fprintf(f,"BUILD 130 IOP MMIO 8244:', '''fprintf(f,"BUILD 130 IOP MMIO 824c: WRITES=%llu READS=%llu LAST_PC=%08X LAST_VALUE=%08X CURRENT=%08X (diagnostic latch only; no hardware side effects)\\n",
+patch(c,'fprintf(f,"BUILD 130 IOP MMIO 8244:', '''fprintf(f,"BUILD 131 IOP MMIO 824C: WRITES=%llu READS=%llu LAST_PC=%08X LAST_VALUE=%08X CURRENT=%08X (diagnostic latch only; no hardware side effects)\\n",
  (unsigned long long)iop_mmio_824c_writes,(unsigned long long)iop_mmio_824c_reads,
  iop_mmio_824c_last_pc,iop_mmio_824c_last_value,iop_mmio_824c_value);
  fprintf(f,"BUILD 130 IOP MMIO 8244:''')
-patch(c,"/8248/8250/8258/8244 diagnostic MMIO; other MMIO rejected)","/8248/8250/8258/824c diagnostic MMIO; other MMIO rejected)")
+patch(c,"/8248/8250/8258/8244/824C diagnostic MMIO; other MMIO rejected)","/8248/8250/8258/824c diagnostic MMIO; other MMIO rejected)")
 print("Build131: 1F80824c diagnostic latch installed")
