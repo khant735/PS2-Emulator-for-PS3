@@ -28,5 +28,5 @@ patch(c,'fprintf(f,"BUILD 130 IOP MMIO 8244:', '''fprintf(f,"BUILD 131 IOP MMIO 
  (unsigned long long)iop_mmio_824c_writes,(unsigned long long)iop_mmio_824c_reads,
  iop_mmio_824c_last_pc,iop_mmio_824c_last_value,iop_mmio_824c_value);
  fprintf(f,"BUILD 130 IOP MMIO 8244:''')
-patch(c,"/8248/8250/8258/8244/824C diagnostic MMIO; other MMIO rejected)","/8248/8250/8258/824c diagnostic MMIO; other MMIO rejected)")
+patch(c,"/8248/8250/8258/8244 diagnostic MMIO; other MMIO rejected)","/8248/8250/8258/8244/824C diagnostic MMIO; other MMIO rejected)")
 print("Build131: 1F80824c diagnostic latch installed")
