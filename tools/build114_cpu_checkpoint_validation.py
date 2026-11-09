@@ -25,7 +25,6 @@ patch(c,"Core::Core():",
 """bool Core::validateEeCpuCheckpoint(const EeCpuCheckpoint& in) {
  // EE PC/next are 32-bit aligned MIPS instruction addresses.
  if(in.version!=1u || (in.pc&3u)!=0u || (in.next&3u)!=0u)return false;
- if(in.stop>1u)return false;
  return true;
 }
 bool Core::validateIopCpuCheckpoint(const IopCpuCheckpoint& in) {
