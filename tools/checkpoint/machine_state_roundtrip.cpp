@@ -1,4 +1,5 @@
 #include "machine_state_stream.h"
+#include "checkpoint_schema.h"
 #include "checkpoint_zlib.h"
 #include <assert.h>
 #include <stdio.h>
@@ -17,6 +18,7 @@ int main(){
  std::vector<ps2state::Section> decoded;
  assert(ps2state::decode(&good.bytes()[0],good.bytes().size(),decoded));
  assert(decoded.size()==2&&decoded[0].bytes.size()==sizeof(ee));
+ assert(!ps2state::complete(decoded)); // Never resume a partial snapshot.
  assert(memcmp(&decoded[0].bytes[0],ee,sizeof(ee))==0);
  assert(memcmp(&decoded[1].bytes[0],iop,sizeof(iop))==0);
  std::vector<unsigned char> damaged=good.bytes();
