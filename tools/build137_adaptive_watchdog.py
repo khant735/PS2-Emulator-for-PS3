@@ -15,16 +15,16 @@ once(h,"bool stopAtInstructionLimit(uint64_t limit);","bool stopAtInstructionLim
 once(c,'case INSTRUCTION_LIMIT:return "BIOS instruction limit reached";','case INSTRUCTION_LIMIT:return "BIOS instruction limit reached";case ADAPTIVE_STALL:return "Adaptive BIOS watchdog: no observed SIF progress";')
 once(c,"bool Core::stopAtInstructionLimit(uint64_t limit){",'''bool Core::stopAtAdaptiveStall(const char* detail){return halt(ADAPTIVE_STALL,detail);}
 bool Core::stopAtInstructionLimit(uint64_t limit){''')
-once(u,"static bool log_stop(){",'''static bool log_stop(){''')
-once(u,"static void run_batch(unsigned n){",'''// Build 137: conservative observation of known F230 polling.  The IOP
-// diagnostic interpreter does not yet provide functional SIF handshakes.
-// No stall decision is made solely from repeated instruction addresses.
-static uint64_t adaptive_last_retired=0,adaptive_last_zero=0,adaptive_last_iop=0;
+once(u,"static bool log_stop(){",'''static uint64_t adaptive_last_retired=0,adaptive_last_zero=0,adaptive_last_iop=0;
 static uint64_t adaptive_last_sif_writes=0;
 static unsigned adaptive_inactive_windows=0;
 static bool adaptive_watchdog_enabled=true;
 static const uint64_t adaptive_window_instructions=1000000ull;
 static const unsigned adaptive_confirm_windows=3;
+static bool log_stop(){''')
+once(u,"static void run_batch(unsigned n){",'''// Build 137: conservative observation of known F230 polling.  The IOP
+// diagnostic interpreter does not yet provide functional SIF handshakes.
+// No stall decision is made solely from repeated instruction addresses.
 static void adaptive_reset(){
  adaptive_last_retired=adaptive_last_zero=adaptive_last_iop=adaptive_last_sif_writes=0;
  adaptive_inactive_windows=0;
