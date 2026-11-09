@@ -15,5 +15,15 @@ int main(){
  assert(fseek(f,-1,SEEK_END)==0);fputc(0xFF,f);fclose(f);
  assert(!ps2checkpoint::read("/tmp/ps2-checkpoint-test.bin",after,sizeof(after),bios,101));
  remove("/tmp/ps2-checkpoint-test.bin");
- puts("Checkpoint container: roundtrip, BIOS/schema mismatch and corruption checks passed");
+ // Build 110: all supported compression levels must round-trip.
+ for(int level=0;level<=9;++level){
+   memset(after,0,sizeof(after));
+   assert(ps2checkpoint::write_with_level("/tmp/ps2-checkpoint-test.bin",before,sizeof(before),bios,101,level));
+   assert(ps2checkpoint::read("/tmp/ps2-checkpoint-test.bin",after,sizeof(after),bios,101));
+   assert(memcmp(before,after,sizeof(before))==0);
+ }
+ assert(!ps2checkpoint::write_with_level("/tmp/ps2-checkpoint-test.bin",before,sizeof(before),bios,101,-1));
+ assert(!ps2checkpoint::write_with_level("/tmp/ps2-checkpoint-test.bin",before,sizeof(before),bios,101,10));
+ remove("/tmp/ps2-checkpoint-test.bin");
+ puts("Checkpoint container: roundtrip, DEFLATE levels 0-9, BIOS/schema mismatch and corruption checks passed");
 }
