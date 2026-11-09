@@ -85,8 +85,15 @@ jobs:
           BASE="https://github.com/khant735/PS3-PSU-Manager/releases/download/ps3dev-verified-toolchain"
           # Prefer public release download endpoints (redirect to release asset CDN).
           # The GitHub REST assets API returned repeated 503/504 errors in Build 072.
-          curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 300 -o ps3dev_psl1ght_full_toolchain.tar.zst "$BASE/ps3dev_psl1ght_full_toolchain.tar.zst"
-          curl --fail --location --retry 5 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 300 -o ps3dev_ppu_compiler_cgcomp.tar.zst "$BASE/ps3dev_ppu_compiler_cgcomp.tar.zst"
+          # Try the public release endpoint first, then GitHub CLI's authenticated release-asset path.
+          # Both paths are checksum-verified below; never accept an unverified archive.
+          for asset in ps3dev_psl1ght_full_toolchain.tar.zst ps3dev_ppu_compiler_cgcomp.tar.zst; do
+            if ! curl --fail --location --retry 3 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 300 -o "$asset" "$BASE/$asset"; then
+              echo "::warning::Public release download failed for $asset; trying GitHub CLI"
+              rm -f "$asset"
+              GH_TOKEN="${{ github.token }}" gh release download ps3dev-verified-toolchain --repo khant735/PS3-PSU-Manager --pattern "$asset" --dir .
+            fi
+          done
           test "$(stat -c%s ps3dev_psl1ght_full_toolchain.tar.zst)" -eq 162112314
           test "$(stat -c%s ps3dev_ppu_compiler_cgcomp.tar.zst)" -eq 88747654
           echo "034747ab869247ffed67b50a8776779bb7ac65fe1a9ebc0a58a0058aab6f8710  ps3dev_psl1ght_full_toolchain.tar.zst" | sha256sum -c -
