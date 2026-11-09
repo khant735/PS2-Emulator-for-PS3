@@ -14,8 +14,8 @@ patch(c,"(reset-only diagnostic; DMA effects unimplemented)","(provisional zero;
 patch(c,"else if(op==9)iop_gpr[rt]=iop_gpr[rs]+(uint32_t)imm;",'''else if(op==8){ // ADDI: signed add, trap on overflow (exception delivery pending).
   int64_t sum=(int64_t)(int32_t)iop_gpr[rs]+(int64_t)imm;
   if(sum>2147483647LL||sum<(-2147483647LL-1LL)){
-   snprintf(iop_reason,sizeof(iop_reason),"IOP ADDI overflow PC=%08X OP=%08X",iop_pc,insn);
-   iop_running=false;return;
+   snprintf(iop_stop_reason,sizeof(iop_stop_reason),"IOP ADDI overflow PC=%08X OP=%08X",addr,ins);
+   iop_running=false;return false;
   }
   if(rt)iop_gpr[rt]=(uint32_t)(int32_t)sum;
  }
