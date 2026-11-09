@@ -10,12 +10,12 @@ def patch(p,a,b):
  s=p.read_text()
  if s.count(a)!=1:raise SystemExit("Build121 anchor mismatch "+str(p)+" "+repr(a))
  p.write_text(s.replace(a,b,1))
-patch(h,"uint32_t iop_pc,iop_next,iop_gpr[32],iop_hi,iop_lo,iop_last_opcode;",
+patch(h,"uint32_t iop_pc,iop_next,iop_gpr[32],iop_cop0[32],iop_hi,iop_lo,iop_last_opcode;",
 """struct IopTraceEntry { uint32_t pc,opcode; };
  enum { IOP_TRACE_CAPACITY=64 };
  IopTraceEntry iop_trace[IOP_TRACE_CAPACITY];
  uint32_t iop_trace_head,iop_trace_count;
- uint32_t iop_pc,iop_next,iop_gpr[32],iop_hi,iop_lo,iop_last_opcode;""")
+ uint32_t iop_pc,iop_next,iop_gpr[32],iop_cop0[32],iop_hi,iop_lo,iop_last_opcode;""")
 patch(c,"iop_hi=iop_lo=iop_last_opcode=0;iop_instructions=0;",
 """iop_hi=iop_lo=iop_last_opcode=0;iop_instructions=0;
  iop_trace_head=iop_trace_count=0;memset(iop_trace,0,sizeof(iop_trace));""")
