@@ -38,7 +38,7 @@ for opcode,kind in ((43,"write"),(35,"read")):
   }else{
 """
  # Find matching brace for the opcode handler to close the newly introduced else.
- start=m.end()-2
+ start=s.find('{',m.start(),m.end())
  depth=0;end=None
  for i in range(start,len(s)):
   if s[i]=='{':depth+=1
