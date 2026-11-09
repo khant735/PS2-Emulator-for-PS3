@@ -15,6 +15,7 @@ once(h,"bool stopAtInstructionLimit(uint64_t limit);","bool stopAtInstructionLim
 once(c,'case INSTRUCTION_LIMIT:return "BIOS instruction limit reached";','case INSTRUCTION_LIMIT:return "BIOS instruction limit reached";case ADAPTIVE_STALL:return "Adaptive BIOS watchdog: no observed SIF progress";')
 once(c,"bool Core::stopAtInstructionLimit(uint64_t limit){",'''bool Core::stopAtAdaptiveStall(const char* detail){return halt(ADAPTIVE_STALL,detail);}
 bool Core::stopAtInstructionLimit(uint64_t limit){''')
+once(u,"static bool log_stop(){",'''static bool log_stop(){''')
 once(u,"static void run_batch(unsigned n){",'''// Build 137: conservative observation of known F230 polling.  The IOP
 // diagnostic interpreter does not yet provide functional SIF handshakes.
 // No stall decision is made solely from repeated instruction addresses.
