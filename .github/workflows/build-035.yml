@@ -212,7 +212,8 @@ jobs:
           python3 tools/build118_dmac_capture.py
           python3 tools/build119_ee_timer_capture.py
           python3 tools/build120_ee_intc_capture.py
-          python3 tools/build121_iop_trace_history.py
+          # Existing Build 094 already records 4096 IOP instruction attempts.
+          # Build 121 redundant 64-entry trace patch intentionally disabled.
           python3 -m py_compile tools/build087_iop_cop0.py tools/build088_iop_sw.py tools/build089_iop_decode.py tools/build090_iop_slti.py tools/build091_iop_lw.py tools/build092_iop_dma_madr.py tools/build093_iop_addi.py tools/build094_iop_memctrl.py tools/build095_iop_memctrl_1020.py tools/build096_iop_memctrl_101c.py tools/build097_iop_memctrl_1004.py tools/build098_iop_mmio_2070.py tools/build099_iop_memctrl_1008.py tools/build100_iop_memctrl_1000.py
           grep -nE 'run_batch|log_stop|render_emu|instructions|ui_now_us|ips_' src/PS2-PS3-Bringup-035-SOURCE/source/emu_ui.inc | tail -85
           python3 -m py_compile tools/build084_ee_ips.py
