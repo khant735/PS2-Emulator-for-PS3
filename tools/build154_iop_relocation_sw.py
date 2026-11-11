@@ -28,29 +28,30 @@ patch(c,"iop_jalr_count=0;","""iop154_head=iop154_count=0;
  memset(iop154_t0,0,sizeof(iop154_t0));
  memset(iop154_t1,0,sizeof(iop154_t1));
  iop_jalr_count=0;""")
-# Target only the IOP SW handler's unique code sequence, including the
-# Build094 memory-control guard. Other emulated RAM writes must be untouched.
-patch(c,"  uint32_t value=iop_gpr[rt];\n  if(pa!=0x1f801010u){iop_ram[pa]=(unsigned char)value;", """  uint32_t value=iop_gpr[rt];
-  // Capture the relocation store before any RAM bytes are overwritten.
-  const bool trace154=(addr==0x00000ec8u);
-  unsigned slot154=0;
-  if(trace154){
-   slot154=iop154_head&63u;
-   iop154_pc[slot154]=addr;iop154_va[slot154]=va;iop154_pa[slot154]=pa;
-   iop154_value[slot154]=value;iop154_before[slot154]=le32(iop_ram+pa);
-   iop154_rs[slot154]=rs;iop154_rt[slot154]=rt;
-   iop154_base[slot154]=iop_gpr[rs];iop154_src[slot154]=iop_gpr[rt];
-   iop154_v0[slot154]=iop_gpr[2];iop154_v1[slot154]=iop_gpr[3];
-   iop154_t0[slot154]=iop_gpr[8];iop154_t1[slot154]=iop_gpr[9];
-  }
-  if(pa!=0x1f801010u){iop_ram[pa]=(unsigned char)value;""")
-# After the entire RAM store, record outcome; avoid generic byte-write anchors.
-patch(c,"  iop_ram[pa+3]=(unsigned char)(value>>24);}", """  iop_ram[pa+3]=(unsigned char)(value>>24);}
-  if(trace154){
-   iop154_after[slot154]=le32(iop_ram+pa);
-   iop154_head=(iop154_head+1u)&63u;
-   if(iop154_count<64u)++iop154_count;
-  }""")
+# The handler has been augmented by many earlier patches. Instead of matching
+# its changing write syntax, attach a pre-execution diagnostic at the single
+# stable instruction-history site, guarded by opcode and PC.
+patch(c,"iop_history[iop_history_head].pc=addr;", """if(addr==0x00000ec8u && ((ins>>26)&63u)==43u){
+  const unsigned rs154=(ins>>21)&31u,rt154=(ins>>16)&31u;
+  const int32_t off154=(int16_t)(ins&65535u);
+  const uint32_t va154=iop_gpr[rs154]+(uint32_t)off154;
+  const uint32_t pa154=(va154>=0x80000000u&&va154<0xc0000000u)?(va154&0x1fffffffu):va154;
+  const unsigned k154=iop154_head&63u;
+  const bool mapped154=((va154&3u)==0 && pa154<=IOP_RAM && IOP_RAM-pa154>=4u);
+  iop154_pc[k154]=addr;iop154_va[k154]=va154;iop154_pa[k154]=pa154;
+  iop154_rs[k154]=rs154;iop154_rt[k154]=rt154;
+  iop154_base[k154]=iop_gpr[rs154];iop154_src[k154]=iop_gpr[rt154];
+  iop154_value[k154]=iop_gpr[rt154];
+  iop154_v0[k154]=iop_gpr[2];iop154_v1[k154]=iop_gpr[3];
+  iop154_t0[k154]=iop_gpr[8];iop154_t1[k154]=iop_gpr[9];
+  iop154_before[k154]=mapped154?le32(iop_ram+pa154):0xffffffffu;
+  // This records the word the existing SW implementation is expected to write,
+  // without adding or modifying a store or assuming success on a bad address.
+  iop154_after[k154]=mapped154?iop_gpr[rt154]:0xffffffffu;
+  iop154_head=(iop154_head+1u)&63u;
+  if(iop154_count<64u)++iop154_count;
+ }
+ iop_history[iop_history_head].pc=addr;""")
 patch(c,'fprintf(f,"BUILD 153 IOP POINTER PROVENANCE:', '''fprintf(f,"BUILD 154 IOP RELOCATION SW: COUNT=%u (last 64 writes at PC=00000EC8; RAM only; before/after snapshots)\\n",iop154_count);
  for(unsigned j=0;j<iop154_count;++j){
   const unsigned k=(iop154_head+64u-iop154_count+j)&63u;
