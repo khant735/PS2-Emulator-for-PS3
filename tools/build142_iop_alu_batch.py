@@ -17,7 +17,7 @@ needle='else {snprintf(iop_stop_reason,sizeof(iop_stop_reason),"IOP unsupported 
 batch='''else if(op==0 && (
     fn==0||fn==2||fn==3||fn==4||fn==6||fn==7||
     fn==16||fn==17||fn==18||fn==19||fn==24||fn==25||
-    fn==26||fn==27||fn==32||fn==34||fn==35||
+    fn==26||fn==27||fn==35||
     fn==36||fn==38||fn==39||fn==42)){
   const uint32_t a=iop_gpr[rs],b=iop_gpr[rt],sa=(ins>>6)&31u;
   const uint32_t shift=b&31u;
@@ -62,7 +62,7 @@ batch='''else if(op==0 && (
  }
  '''
 once(c,needle,batch+needle)
-once(c,'fprintf(f,"BUILD 141 IOP SLTU:', '''fprintf(f,"BUILD 142 IOP ALU BATCH: EXECUTED=%llu LAST_PC=%08X LAST_INSN=%08X (MIPS-I ALU/shifts/HI-LO; overflow and load-delay fidelity pending)\\n",
+once(c,'fprintf(f,"BUILD 141 IOP SLTU:', '''fprintf(f,"BUILD 142 IOP ALU BATCH: EXECUTED=%llu LAST_PC=%08X LAST_INSN=%08X (MIPS-I ALU/shifts/HI-LO; trapping ADD/SUB and load-delay fidelity pending)\\n",
  (unsigned long long)iop_batch142_ops,iop_batch142_last_pc,iop_batch142_last_ins);
  fprintf(f,"BUILD 141 IOP SLTU:''')
 print("Build142: integer ALU/shift/HI-LO batch installed")
