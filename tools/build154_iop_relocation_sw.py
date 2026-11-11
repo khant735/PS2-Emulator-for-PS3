@@ -30,7 +30,7 @@ patch(c,"iop_jalr_count=0;","""iop154_head=iop154_count=0;
  iop_jalr_count=0;""")
 # Target only the IOP SW handler's unique code sequence, including the
 # Build094 memory-control guard. Other emulated RAM writes must be untouched.
-patch(c,"  uint32_t value=iop_gpr[rt];\\n  if(pa!=0x1f801010u){iop_ram[pa]=(unsigned char)value;", """  uint32_t value=iop_gpr[rt];
+patch(c,"  uint32_t value=iop_gpr[rt];\n  if(pa!=0x1f801010u){iop_ram[pa]=(unsigned char)value;", """  uint32_t value=iop_gpr[rt];
   // Capture the relocation store before any RAM bytes are overwritten.
   const bool trace154=(addr==0x00000ec8u);
   unsigned slot154=0;
