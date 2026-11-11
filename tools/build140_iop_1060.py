@@ -21,7 +21,7 @@ once(c,"iop_lb_reads=0;", """iop_1060_reads=iop_1060_writes=0;
  iop_lb_reads=0;""")
 s=c.read_text()
 for op in (43,35):
- pattern=r'(else if\\(op=='+str(op)+r'\\)\\{[^\\n]*\\n)'
+ pattern=r'(else if\(op=='+str(op)+r'\)\{[^\n]*\n)'
  matches=list(re.finditer(pattern,s))
  if len(matches)!=1:raise SystemExit(f"Build140 op={op} handler count={len(matches)}")
  m=matches[0]
@@ -58,11 +58,11 @@ for op in (43,35):
    ++iop_1060_reads;++iop_lw_reads;
   }else{
 """
- s=s[:end]+" } // end Build140 IOP 1060 alternate path\\n"+s[end:]
+ s=s[:end]+" } // end Build140 IOP 1060 alternate path\n"+s[end:]
  s=s[:m.end()]+inject+s[m.end():]
 anchor='fprintf(f,"BUILD 139 IOP LB:'
 if s.count(anchor)!=1:raise SystemExit("Build140 trace anchor missing")
-s=s.replace(anchor,'''fprintf(f,"BUILD 140 IOP 1F801060: WRITES=%llu READS=%llu LAST_PC=%08X LAST_WRITE=%08X VALUE=%08X (diagnostic readback only; hardware side effects not modeled)\\n",
+s=s.replace(anchor,'''fprintf(f,"BUILD 140 IOP 1F801060: WRITES=%llu READS=%llu LAST_PC=%08X LAST_WRITE=%08X VALUE=%08X (diagnostic readback only; hardware side effects not modeled)\n",
  (unsigned long long)iop_1060_writes,(unsigned long long)iop_1060_reads,
  iop_1060_last_pc,iop_1060_last_write,iop_1060_value);
  '''+anchor,1)
