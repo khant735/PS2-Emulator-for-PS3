@@ -38,5 +38,5 @@ replace_once(core,
 replace_once(core,
     "EE SIF %08X diagnostic latch (no IOP/DMA effects)",
     "EE SIF %08X EE-side register (F220 bit-set; no IOP/DMA effects)")
-replace_once(ui,"BUILD 137 - ADAPTIVE SIF WATCHDOG","BUILD 138 - SBUS BIT OPERATIONS")
+# No UI banner anchor: Build 137 does not change the banner.
 print("Build 138: EE F220 set-bits and F230 clear-bits installed; IOP bridge still pending")
