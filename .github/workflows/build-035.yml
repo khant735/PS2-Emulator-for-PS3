@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 148 (IOP JALR)
+name: PS2 Emulator Build 149 (IOP ADD)
 
 on:
   workflow_dispatch:
@@ -86,6 +86,7 @@ on:
       - 'tools/build146_iop_sh_spu2.py'
       - 'tools/build147_iop_lhu.py'
       - 'tools/build148_iop_jalr.py'
+      - 'tools/build149_iop_add.py'
 
 permissions:
   contents: read
@@ -264,6 +265,7 @@ jobs:
           python3 tools/build146_iop_sh_spu2.py
           python3 tools/build147_iop_lhu.py
           python3 tools/build148_iop_jalr.py
+          python3 tools/build149_iop_add.py
           # Existing Build 094 already records 4096 IOP instruction attempts.
           # Build 121 redundant 64-entry trace patch intentionally disabled.
           python3 -m py_compile tools/build087_iop_cop0.py tools/build088_iop_sw.py tools/build089_iop_decode.py tools/build090_iop_slti.py tools/build091_iop_lw.py tools/build092_iop_dma_madr.py tools/build093_iop_addi.py tools/build094_iop_memctrl.py tools/build095_iop_memctrl_1020.py tools/build096_iop_memctrl_101c.py tools/build097_iop_memctrl_1004.py tools/build098_iop_mmio_2070.py tools/build099_iop_memctrl_1008.py tools/build100_iop_memctrl_1000.py
