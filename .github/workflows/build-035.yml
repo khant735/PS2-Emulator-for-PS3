@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 154 (IOP Relocation SW Provenance)
+name: PS2 Emulator Build 155 (Interpreter Acceleration Contract)
 
 on:
   workflow_dispatch:
@@ -48,6 +48,8 @@ on:
       - 'tools/build100_iop_memctrl_1000.py'
       - 'tools/build101_checkpoint_audit.py'
       - 'tools/checkpoint/**'
+      - 'tools/acceleration/**'
+      - 'docs/ACCELERATION_PLAN.md'
       - 'tools/build103_menu_groups.py'
       - 'tools/build104_iop_memctrl_1014.py'
       - 'tools/build105_storage_paths.py'
@@ -116,6 +118,11 @@ jobs:
           /tmp/ps2_checkpoint_settings_test
           g++ -std=c++11 -Wall -Wextra -Werror -Itools/checkpoint tools/checkpoint/machine_state_roundtrip.cpp -lz -o /tmp/ps2_machine_state_test
           /tmp/ps2_machine_state_test
+
+      - name: Acceleration backend contract regression
+        run: |
+          g++ -std=c++11 -Wall -Wextra -Werror -Itools/acceleration tools/acceleration/acceleration_config_test.cpp -o /tmp/ps2_acceleration_test
+          /tmp/ps2_acceleration_test
 
       - name: Verify and extract PS3DEV toolchains
         shell: bash
@@ -290,7 +297,7 @@ jobs:
               print('COP2_INSPECT',i+1,repr(line[:220]))
               for j in range(max(0,i-3),min(len(s),i+7)):print('COP2_CONTEXT',j+1,s[j][:240])
           PY
-          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-154-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
+          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-155-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
           echo 'Recovered Build 034 register test applied to Build 035 source tree'
 
       - name: Configure and compile
@@ -329,12 +336,12 @@ jobs:
           cp -f checkpoint-readiness-build101.json artifacts/ 2>/dev/null || true
           cp -f build035.log artifacts/ 2>/dev/null || true
           find src/PS2-PS3-Bringup-035-SOURCE -maxdepth 2 -type f \( -name '*.elf' -o -name '*.self' -o -name '*.pkg' -o -name '*.map' \) -exec cp -f '{}' artifacts/ \; 2>/dev/null || true
-          cp -f PS2-PS3-Bringup-154-SOURCE.zip artifacts/ 2>/dev/null || true
+          cp -f PS2-PS3-Bringup-155-SOURCE.zip artifacts/ 2>/dev/null || true
 
       - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: PS2-Emulator-Build-154
+          name: PS2-Emulator-Build-155
           path: artifacts/
           if-no-files-found: warn
