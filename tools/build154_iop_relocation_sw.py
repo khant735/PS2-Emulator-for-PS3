@@ -28,8 +28,10 @@ patch(c,"iop_jalr_count=0;","""iop154_head=iop154_count=0;
  memset(iop154_t0,0,sizeof(iop154_t0));
  memset(iop154_t1,0,sizeof(iop154_t1));
  iop_jalr_count=0;""")
-patch(c,"iop_ram[pa]=(unsigned char)value;","""// Capture every SW from the relocation loop at 0xEC8, including aliases.
-  // The mapping/alignment checks above remain unchanged.
+# Target only the IOP SW handler's unique code sequence, including the
+# Build094 memory-control guard. Other emulated RAM writes must be untouched.
+patch(c,"  uint32_t value=iop_gpr[rt];\\n  if(pa!=0x1f801010u){iop_ram[pa]=(unsigned char)value;", """  uint32_t value=iop_gpr[rt];
+  // Capture the relocation store before any RAM bytes are overwritten.
   const bool trace154=(addr==0x00000ec8u);
   unsigned slot154=0;
   if(trace154){
@@ -41,8 +43,9 @@ patch(c,"iop_ram[pa]=(unsigned char)value;","""// Capture every SW from the relo
    iop154_v0[slot154]=iop_gpr[2];iop154_v1[slot154]=iop_gpr[3];
    iop154_t0[slot154]=iop_gpr[8];iop154_t1[slot154]=iop_gpr[9];
   }
-  iop_ram[pa]=(unsigned char)value;""")
-patch(c,"iop_ram[pa+3]=(unsigned char)(value>>24);","""iop_ram[pa+3]=(unsigned char)(value>>24);
+  if(pa!=0x1f801010u){iop_ram[pa]=(unsigned char)value;""")
+# After the entire RAM store, record outcome; avoid generic byte-write anchors.
+patch(c,"  iop_ram[pa+3]=(unsigned char)(value>>24);}", """  iop_ram[pa+3]=(unsigned char)(value>>24);}
   if(trace154){
    iop154_after[slot154]=le32(iop_ram+pa);
    iop154_head=(iop154_head+1u)&63u;
