@@ -1,4 +1,4 @@
-name: PS2 Emulator Build 148 (IOP LHU)
+name: PS2 Emulator Build 148 (IOP JALR)
 
 on:
   workflow_dispatch:
@@ -85,6 +85,7 @@ on:
       - 'tools/build145_iop_post3.py'
       - 'tools/build146_iop_sh_spu2.py'
       - 'tools/build147_iop_lhu.py'
+      - 'tools/build148_iop_jalr.py'
 
 permissions:
   contents: read
