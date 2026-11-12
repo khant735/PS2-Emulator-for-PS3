@@ -22,8 +22,8 @@ addition=r'''fprintf(f,"BUILD 157 IOP FAULT WINDOW: last 128 attempted IOP instr
  }
  '''
 s=s.replace(anchor,addition+anchor,1)
-identity="BUILD_NUMBER=154\\nBUILD_VERSION=dev-build.154"
-assert s.count(identity)==1, "Build157 identity anchor mismatch"
-s=s.replace(identity,"BUILD_NUMBER=157\\nBUILD_VERSION=dev-build.157",1)
+import re
+s,n=re.subn(r"BUILD_NUMBER=\\d+\\\\nBUILD_VERSION=dev-build\\.\\d+",r"BUILD_NUMBER=157\\nBUILD_VERSION=dev-build.157",s,count=1)
+assert n==1, "Build157 identity anchor mismatch"
 c.write_text(s)
 print("Build157 diagnostic installed")
