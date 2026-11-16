@@ -1,0 +1,74 @@
+name: IOP SIF Source Reconstruction Audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check isolated SBUS reference contract
+        run: python3 -m unittest discover -s tools/tests -p 'test_sif_sbus_contract.py' -v
+      - name: Reconstruct Build 157 from exact existing workflow patch order
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess, sys, zipfile
+          workflow = Path('.github/workflows/build-035.yml').read_text()
+          start = workflow.index('      - name: Unpack Build 035 source')
+          end = workflow.index('      - name: Configure and compile', start)
+          block = workflow[start:end]
+          scripts = re.findall(r'^          python3 (tools/(?:restore-build|build)\S+\.py)\s*$', block, re.M)
+          assert scripts and scripts[0] == 'tools/restore-build034-iop-test.py'
+          assert scripts[-1] == 'tools/build157_iop_fault_window.py'
+          archive = Path('PS2-PS3-Bringup-035-SOURCE.zip')
+          assert archive.is_file(), 'Missing Build 035 source ZIP'
+          with zipfile.ZipFile(archive) as z:
+              for item in z.infolist():
+                  dest = (Path('src') / item.filename).resolve()
+                  assert dest.is_relative_to(Path('src').resolve()), f'Unsafe ZIP entry: {item.filename}'
+              z.extractall('src')
+          root = Path('src/PS2-PS3-Bringup-035-SOURCE')
+          assert (root/'source/emu_core.cpp').is_file()
+          with Path('reconstruction.log').open('w') as log:
+              for index, script in enumerate(scripts, 1):
+                  print(f'{index:03} {script}', flush=True)
+                  result = subprocess.run([sys.executable, script], text=True,
+                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                  log.write(f'{index:03} {script}\n{result.stdout}\n')
+                  log.flush()
+                  if result.returncode:
+                      print(result.stdout, file=sys.stderr)
+                      raise SystemExit(f'Patch failed: {script}')
+          core = (root/'source/emu_core.cpp').read_text()
+          checks = {
+              'Build 138 F220 set': 'ee_sif_f2xx[i]|=uint32_t(v)',
+              'Build 138 F230 clear': 'ee_sif_f230&=~uint32_t(v)',
+              'Build 157 fault window': 'BUILD 157 IOP FAULT WINDOW',
+          }
+          for label, token in checks.items():
+              assert token in core, f'Missing expected generated code: {label}'
+          print(f'PASS: {len(scripts)} patches, Build 138 and 157 anchors found')
+          PY
+      - name: Collect reconstructed source for inspection
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p audit-output
+          cp reconstruction.log audit-output/ 2>/dev/null || true
+          cp src/PS2-PS3-Bringup-035-SOURCE/source/emu_core.cpp audit-output/ 2>/dev/null || true
+          cp src/PS2-PS3-Bringup-035-SOURCE/include/emu_core.h audit-output/ 2>/dev/null || true
+          cp src/PS2-PS3-Bringup-035-SOURCE/source/emu_ui.inc audit-output/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: iop-sif-reconstructed-source
+          path: audit-output/
+          if-no-files-found: warn
