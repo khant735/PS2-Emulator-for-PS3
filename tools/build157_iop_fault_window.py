@@ -23,7 +23,11 @@ addition=r'''fprintf(f,"BUILD 157 IOP FAULT WINDOW: last 128 attempted IOP instr
  '''
 s=s.replace(anchor,addition+anchor,1)
 import re
-s,n=re.subn(r"BUILD_NUMBER=\\d+\\\\nBUILD_VERSION=dev-build\\.\\d+",r"BUILD_NUMBER=157\\nBUILD_VERSION=dev-build.157",s,count=1)
+# Build 150 already emits a literal two-line identity header. Match that exact
+# embedded log header, not a string containing an escaped backslash-n.
+pattern=r"BUILD_NUMBER=154\\nBUILD_VERSION=dev-build\\.154"
+replacement="BUILD_NUMBER=157\\nBUILD_VERSION=dev-build.157"
+s,n=re.subn(pattern,lambda _m: replacement,s,count=1)
 assert n==1, "Build157 identity anchor mismatch"
 c.write_text(s)
 print("Build157 diagnostic installed")
