@@ -22,12 +22,11 @@ addition=r'''fprintf(f,"BUILD 157 IOP FAULT WINDOW: last 128 attempted IOP instr
  }
  '''
 s=s.replace(anchor,addition+anchor,1)
-import re
-# Build 150 already emits a literal two-line identity header. Match that exact
-# embedded log header, not a string containing an escaped backslash-n.
-pattern=r"BUILD_NUMBER=154\\nBUILD_VERSION=dev-build\\.154"
-replacement="BUILD_NUMBER=157\\nBUILD_VERSION=dev-build.157"
-s,n=re.subn(pattern,lambda _m: replacement,s,count=1)
-assert n==1, "Build157 identity anchor mismatch"
+# The generated C++ fprintf literal contains the two characters backslash+n,
+# not a real newline. Match that literal sequence before writing the source.
+old_identity = r"BUILD_NUMBER=154\nBUILD_VERSION=dev-build.154"
+new_identity = r"BUILD_NUMBER=157\nBUILD_VERSION=dev-build.157"
+assert s.count(old_identity)==1, "Build157 identity anchor mismatch"
+s=s.replace(old_identity,new_identity,1)
 c.write_text(s)
 print("Build157 diagnostic installed")
