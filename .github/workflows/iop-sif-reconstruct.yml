@@ -64,6 +64,7 @@ jobs:
               assert token in core, f'Missing expected generated code: {label}'
           print(f'PASS: {len(scripts)} patches, Build 138 and 157 anchors found')
           PY
+          python3 tools/tests/audit_generated_sif.py src/PS2-PS3-Bringup-035-SOURCE/source/emu_core.cpp
       - name: Collect reconstructed source for inspection
         if: always()
         shell: bash
