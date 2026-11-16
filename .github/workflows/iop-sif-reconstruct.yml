@@ -9,6 +9,7 @@ on:
       - '.github/workflows/iop-sif-reconstruct.yml'
       - 'tools/tests/**'
       - 'tools/build157_iop_fault_window.py'
+      - 'tools/build158_iop_sif_flag_reads.py'
 
 permissions:
   contents: read
@@ -64,7 +65,9 @@ jobs:
               assert token in core, f'Missing expected generated code: {label}'
           print(f'PASS: {len(scripts)} patches, Build 138 and 157 anchors found')
           PY
+          python3 tools/build158_iop_sif_flag_reads.py
           python3 tools/tests/audit_generated_sif.py src/PS2-PS3-Bringup-035-SOURCE/source/emu_core.cpp
+          grep -q 'pa==0x1d000020u||pa==0x1d000030u' src/PS2-PS3-Bringup-035-SOURCE/source/emu_core.cpp
       - name: Collect reconstructed source for inspection
         if: always()
         shell: bash
