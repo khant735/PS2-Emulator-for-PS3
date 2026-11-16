@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/iop-sif-reconstruct.yml'
       - 'tools/tests/**'
+      - 'tools/build157_iop_fault_window.py'
 
 permissions:
   contents: read
