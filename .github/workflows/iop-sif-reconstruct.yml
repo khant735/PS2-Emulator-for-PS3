@@ -2,6 +2,12 @@ name: IOP SIF Source Reconstruction Audit
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - research/iop-sif-regression-20261116
+    paths:
+      - '.github/workflows/iop-sif-reconstruct.yml'
+      - 'tools/tests/**'
 
 permissions:
   contents: read
