@@ -22,7 +22,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check isolated SBUS reference contract
         run: python3 -m unittest discover -s tools/tests -p 'test_sif_sbus_contract.py' -v
-      - name: Check PCSX2/PS3 IOP trace comparator\n        run: python3 -m unittest discover -s tools/tests -p 'test_compare_iop_traces.py' -v\n      - name: Reconstruct Build 157 from exact existing workflow patch order
+      - name: Check PCSX2/PS3 IOP trace comparator
+        run: python3 -m unittest discover -s tools/tests -p 'test_compare_iop_traces.py' -v
+      - name: Reconstruct Build 157 from exact existing workflow patch order
         shell: bash
         run: |
           set -euo pipefail
