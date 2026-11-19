@@ -41,8 +41,9 @@ def compare(reference,candidate,limit=None):
     while limit is None or count<limit:
         x,y=next(a,None),next(b,None)
         if x is None or y is None:
-            return dict(status='end_of_trace',compared=count,
-                        reference_exhausted=x is None,candidate_exhausted=y is None)
+            return dict(status='match' if x is None and y is None else 'length_mismatch',
+                        compared=count, reference_exhausted=x is None,
+                        candidate_exhausted=y is None)
         if x['N']!=y['N']:
             return dict(status='index_mismatch',compared=count,
                         reference_n=x['N'],candidate_n=y['N'])
@@ -61,4 +62,4 @@ if __name__=='__main__':
     args=p.parse_args()
     result=compare(args.reference,args.candidate,args.limit)
     print(json.dumps(result,indent=2))
-    raise SystemExit(1 if result['status'] in ('divergence','index_mismatch') else 0)
+    raise SystemExit(1 if result['status'] in ('divergence','index_mismatch','length_mismatch') else 0)
