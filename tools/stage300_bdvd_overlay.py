@@ -24,12 +24,12 @@ static void bdvd_probe(){
  fprintf(f,"STAGE=300\nTITLE_ID=BDVP00300\nMODE=READ_ONLY\n");fflush(f);
  const char *paths[]={"/dev_bdvd","/dev_bdvd/PS3_DISC.SFB","/dev_bdvd/SYSTEM.CNF;1"};
  for(unsigned t=0;t<3;t++){
-  int fd=-1,ret=sysFsOpen(paths[t],SYS_O_RDONLY,&fd,NULL,0);
+  int fd=-1,ret=sysLv2FsOpen(paths[t],SYS_O_RDONLY,&fd,0,NULL,0);
   fprintf(f,"PATH=%s OPEN=0x%08X\n",paths[t],(unsigned)ret);fflush(f);
   if(ret)continue;
   unsigned char sector[2048];unsigned n=(t==0?17:1),done=0;
   for(unsigned i=0;i<n;i++){
-   uint64_t got=0;ret=sysFsRead(fd,sector,sizeof(sector),&got);
+   uint64_t got=0;ret=sysLv2FsRead(fd,sector,sizeof(sector),&got);
    fprintf(f,"READ_INDEX=%u RET=0x%08X BYTES=%llu\n",i,(unsigned)ret,(unsigned long long)got);fflush(f);
    if(ret||got!=2048)break;
    done++;
@@ -38,7 +38,7 @@ static void bdvd_probe(){
     fprintf(f,"ISO9660_PVD=%d\n",valid);fflush(f);
    }
   }
-  fprintf(f,"SECTORS_READ=%u CLOSE=0x%08X\n",done,(unsigned)sysFsClose(fd));fflush(f);
+  fprintf(f,"SECTORS_READ=%u CLOSE=0x%08X\n",done,(unsigned)sysLv2FsClose(fd));fflush(f);
  }
  int ok=!ferror(f);if(fflush(f))ok=0;if(fclose(f))ok=0;
  notice(ok?"BDVD PROBE: REPORT SAVED TO USRDIR/logs":"BDVD PROBE: REPORT WRITE FAILED");
