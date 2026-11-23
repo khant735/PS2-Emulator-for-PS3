@@ -61,4 +61,10 @@ for p in root.rglob('*'):
   try:t=p.read_text()
   except UnicodeDecodeError:continue
   if 'P2E000001' in t:raise SystemExit('Unisolated path: '+str(p))
+makefile=root/"Makefile"
+text_make=makefile.read_text()
+import re as _re
+text_make,n=_re.subn(r"(?m)^TITLE :=.*$", "TITLE := BDVD Stage300 Read-Only Probe", text_make)
+if n!=1:raise SystemExit("Could not isolate XMB application title")
+makefile.write_text(text_make)
 print("Stage300 uses emulator UI and logging; isolated BDVP00300; modified",changed)
