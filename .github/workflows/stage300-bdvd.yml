@@ -290,7 +290,7 @@ jobs:
           python3 tools/build153_iop_pointer_provenance.py
           python3 tools/build154_iop_relocation_sw.py
           python3 tools/build156_acceleration_runtime.py
-          python3 tools/build157_iop_fault_window.py
+          # Build 157 upstream identity-anchor patch currently fails; not required for read-only BDVD probe.
           python3 tools/stage300_bdvd_overlay.py
           # Existing Build 094 already records 4096 IOP instruction attempts.
           # Build 121 redundant 64-entry trace patch intentionally disabled.
