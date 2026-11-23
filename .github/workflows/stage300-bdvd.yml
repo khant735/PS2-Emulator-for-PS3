@@ -1,0 +1,359 @@
+name: Stage 300 BDVD Probe (PS2 Emulator UI)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'PS2-PS3-Bringup-035-SOURCE.zip'
+      - '.github/workflows/build-035.yml'
+      - '.github/workflows/stage300-bdvd.yml'
+      - 'tools/stage300_bdvd_overlay.py'
+      - 'tools/restore-build034-iop-test.py'
+      - 'tools/build037_auto_reports.py'
+      - 'tools/build038_preserve_reports.py'
+      - 'tools/build039_dve_fault_diagnostics.py'
+      - 'tools/build040_dve_mode43.py'
+      - 'tools/build040_dve_regression.cpp'
+      - 'tools/build041_gif_fifo.py'
+      - 'tools/build042_dmac_ctrl.py'
+      - 'tools/build043_ee_timers.py'
+      - 'tools/build044_vif0_dma_probe.py'
+      - 'tools/build045_ee_dmac.py'
+      - 'tools/build046_vu0_cop2.py'
+      - 'tools/build047_vu0_viswr_zero.py'
+      - 'tools/build048_vu0_qmfc2.py'
+      - 'tools/build049_vu_macro_decode.py'
+      - 'tools/build050_vsub_vf0.py'
+      - 'tools/build051_vu_vsqi.py'
+      - 'tools/build052_vu_vsqi_wrap.py'
+      - 'tools/build053_vu_qmtc2.py'
+      - 'tools/build054_vu1_data.py'
+      - 'tools/build055_vu1_micro.py'
+      - 'tools/build056_vif1_regs.py'
+      - 'tools/build057_vif1_fifo.py'
+      - 'tools/build058_f510_probe.py'
+      - 'tools/build085_sif_poll.py'
+      - 'tools/build086_iop_bootstrap.py'
+      - 'tools/build087_iop_cop0.py'
+      - 'tools/build088_iop_sw.py'
+      - 'tools/build089_iop_decode.py'
+      - 'tools/build090_iop_slti.py'
+      - 'tools/build091_iop_lw.py'
+      - 'tools/build092_iop_dma_madr.py'
+      - 'tools/build093_iop_addi.py'
+      - 'tools/build094_iop_memctrl.py'
+      - 'tools/build095_iop_memctrl_1020.py'
+      - 'tools/build096_iop_memctrl_101c.py'
+      - 'tools/build097_iop_memctrl_1004.py'
+      - 'tools/build098_iop_mmio_2070.py'
+      - 'tools/build099_iop_memctrl_1008.py'
+      - 'tools/build100_iop_memctrl_1000.py'
+      - 'tools/build101_checkpoint_audit.py'
+      - 'tools/checkpoint/**'
+      - 'tools/acceleration/**'
+      - 'tools/build156_acceleration_runtime.py'
+      - 'tools/build157_iop_fault_window.py'
+      - 'docs/ACCELERATION_PLAN.md'
+      - 'tools/build103_menu_groups.py'
+      - 'tools/build104_iop_memctrl_1014.py'
+      - 'tools/build105_storage_paths.py'
+      - 'tools/build108_ee_cpu_capture.py'
+      - 'tools/build109_iop_cpu_capture.py'
+      - 'tools/build114_cpu_checkpoint_validation.py'
+      - 'tools/build115_iop_ram_capture.py'
+      - 'tools/build116_ee_ram_capture.py'
+      - 'tools/build117_combined_capture.py'
+      - 'tools/build118_dmac_capture.py'
+      - 'tools/build119_ee_timer_capture.py'
+      - 'tools/build120_ee_intc_capture.py'
+      - 'tools/build121_iop_trace_history.py'
+      - 'tools/build122_iop_memctrl_1018.py'
+      - 'tools/build123_iop_memctrl_100c.py'
+      - 'tools/build126_iop_mmio_8240.py'
+      - 'tools/build127_iop_mmio_8248.py'
+      - 'tools/build128_iop_mmio_8250.py'
+      - 'tools/build129_iop_mmio_history.py'
+      - 'tools/build130_iop_mmio_8244.py'
+      - 'tools/build131_iop_mmio_824c.py'
+      - 'tools/build132_iop_mmio_8254.py'
+      - 'tools/build133_iop_bus_classifier.py'
+      - 'tools/build134_iop_boot_bank.py'
+      - 'tools/build135_iop_sb.py'
+      - 'tools/build136_iop_cachectrl.py'
+      - 'tools/build137_adaptive_watchdog.py'
+      - 'tools/build138_sbus_bitops.py'
+      - 'tools/build139_iop_lb.py'
+      - 'tools/build140_iop_1060.py'
+      - 'tools/build141_iop_sltu.py'
+      - 'tools/build142_iop_alu_batch.py'
+      - 'tools/build143_iop_lh.py'
+      - 'tools/build144_iop_1fa0_diag.py'
+      - 'tools/build145_iop_post3.py'
+      - 'tools/build146_iop_sh_spu2.py'
+      - 'tools/build147_iop_lhu.py'
+      - 'tools/build148_iop_jalr.py'
+      - 'tools/build149_iop_add.py'
+      - 'tools/build150_log_identity.py'
+      - 'tools/build151_iop_lw_forensics.py'
+      - 'tools/build152_iop_lw_provenance.py'
+      - 'tools/build153_iop_pointer_provenance.py'
+      - 'tools/build154_iop_relocation_sw.py'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zstd make python3 libelf-dev zlib1g-dev
+
+      - name: Checkpoint save/load host regression
+        run: |
+          g++ -std=c++11 -Wall -Wextra -Werror -Itools/checkpoint tools/checkpoint/checkpoint_roundtrip.cpp -lz -o /tmp/ps2_checkpoint_test
+          /tmp/ps2_checkpoint_test
+          g++ -std=c++11 -Wall -Wextra -Werror -Itools/checkpoint tools/checkpoint/checkpoint_settings_roundtrip.cpp -o /tmp/ps2_checkpoint_settings_test
+          /tmp/ps2_checkpoint_settings_test
+          g++ -std=c++11 -Wall -Wextra -Werror -Itools/checkpoint tools/checkpoint/machine_state_roundtrip.cpp -lz -o /tmp/ps2_machine_state_test
+          /tmp/ps2_machine_state_test
+
+      - name: Acceleration backend contract regression
+        run: |
+          g++ -std=c++11 -Wall -Wextra -Werror -Itools/acceleration tools/acceleration/acceleration_config_test.cpp -o /tmp/ps2_acceleration_test
+          /tmp/ps2_acceleration_test
+          g++ -std=c++11 -Wall -Wextra -Werror -Itools/acceleration tools/acceleration/acceleration_ini_test.cpp -o /tmp/ps2_acceleration_ini_test
+          /tmp/ps2_acceleration_ini_test
+
+      - name: Verify and extract PS3DEV toolchains
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/toolchains"
+          cd "$RUNNER_TEMP/toolchains"
+          BASE="https://github.com/khant735/PS3-PSU-Manager/releases/download/ps3dev-verified-toolchain"
+          # Prefer public release download endpoints (redirect to release asset CDN).
+          # The GitHub REST assets API returned repeated 503/504 errors in Build 072.
+          # Try the public release endpoint first, then GitHub CLI's authenticated release-asset path.
+          # Both paths are checksum-verified below; never accept an unverified archive.
+          for asset in ps3dev_psl1ght_full_toolchain.tar.zst ps3dev_ppu_compiler_cgcomp.tar.zst; do
+            if ! curl --fail --location --retry 3 --retry-all-errors --retry-delay 5 --connect-timeout 20 --max-time 300 -o "$asset" "$BASE/$asset"; then
+              echo "::warning::Public release download failed for $asset; trying GitHub CLI"
+              rm -f "$asset"
+              GH_TOKEN="${{ github.token }}" gh release download ps3dev-verified-toolchain --repo khant735/PS3-PSU-Manager --pattern "$asset" --dir .
+            fi
+          done
+          test "$(stat -c%s ps3dev_psl1ght_full_toolchain.tar.zst)" -eq 162112314
+          test "$(stat -c%s ps3dev_ppu_compiler_cgcomp.tar.zst)" -eq 88747654
+          echo "034747ab869247ffed67b50a8776779bb7ac65fe1a9ebc0a58a0058aab6f8710  ps3dev_psl1ght_full_toolchain.tar.zst" | sha256sum -c -
+          echo "95f8f0a463c0a68177ada128273ec026481ec0b31fce3481c74e0eccb7e12e88  ps3dev_ppu_compiler_cgcomp.tar.zst" | sha256sum -c -
+          for f in *.tar.zst; do
+            echo "Archive layout for $f:"
+            tar --zstd -tf "$f" | head -30 || true
+          done
+          mkdir -p "$RUNNER_TEMP/ps3toolchain"
+          for f in *.tar.zst; do tar --zstd -xf "$f" -C "$RUNNER_TEMP/ps3toolchain"; done
+          echo "Toolchain executables:"
+          find "$RUNNER_TEMP/ps3toolchain" -type f \( -name 'ppu-gcc' -o -name 'ppu-g++' -o -name 'make_pkg' -o -name 'make_self_npdrm' \) -print
+          echo "PSL1GHT rules:"
+          find "$RUNNER_TEMP/ps3toolchain" -name ppu_rules -print
+
+      - name: Unpack Build 035 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s PS2-PS3-Bringup-035-SOURCE.zip || { echo "::error::Upload PS2-PS3-Bringup-035-SOURCE.zip to the repository root"; exit 1; }
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile("PS2-PS3-Bringup-035-SOURCE.zip") as z:
+              z.extractall("src")
+          PY
+          test -f src/PS2-PS3-Bringup-035-SOURCE/Makefile
+          python3 tools/restore-build034-iop-test.py
+          python3 tools/build037_auto_reports.py
+          python3 tools/build038_preserve_reports.py
+          python3 tools/build039_dve_fault_diagnostics.py
+          python3 tools/build040_dve_mode43.py
+          g++ -std=c++11 -Wall -Wextra -Werror -Isrc/PS2-PS3-Bringup-035-SOURCE/include tools/build040_dve_regression.cpp -o /tmp/build040_dve_regression
+          /tmp/build040_dve_regression
+          python3 tools/build041_gif_fifo.py
+          python3 tools/build042_dmac_ctrl.py
+          python3 tools/build043_ee_timers.py
+          python3 tools/build044_vif0_dma_probe.py
+          python3 tools/build045_ee_dmac.py
+          python3 tools/build046_vu0_cop2.py
+          python3 tools/build047_vu0_viswr_zero.py
+          python3 tools/build048_vu0_qmfc2.py
+          python3 tools/build049_vu_macro_decode.py
+          python3 tools/build050_vsub_vf0.py
+          python3 tools/build051_vu_vsqi.py
+          python3 tools/build052_vu_vsqi_wrap.py
+          python3 tools/build053_vu_qmtc2.py
+          python3 tools/build054_vu1_data.py
+          python3 tools/build055_vu1_micro.py
+          python3 tools/build056_vif1_regs.py
+          python3 tools/build057_vif1_fifo.py
+          python3 tools/build058_f510_probe.py
+          python3 tools/build059_memory_inventory.py
+          python3 tools/build060_vu0_memory.py
+          python3 tools/build061_vu0_vsub_vf2.py
+          python3 tools/build062_vu0_vsub_decode.py
+          python3 tools/build063_vu0_viadd.py
+          python3 tools/build064_vif0_regs.py
+          python3 tools/build065_vif0_fifo.py
+          python3 tools/build066_ipu_regs.py
+          python3 tools/build067_ipu_fifo.py
+          python3 tools/build068_fpu_add.py
+          python3 tools/build069_fpu_control.py
+          python3 tools/build070_cache_op14.py
+          python3 tools/build071_cache_op0c.py
+          python3 tools/build072_mmio_3800_diag.py
+          python3 tools/build073_iop_debug3800_probe.py
+          python3 tools/build074_ee_ldl.py
+          python3 tools/build075_ee_ldr.py
+          python3 tools/test075_ldl_ldr.py
+          python3 tools/build076_ee_sdl_sdr.py
+          python3 tools/test076_sdl_sdr.py
+          python3 tools/build077_sif_ctrl.py
+          python3 tools/build078_sif_physical.py
+          python3 tools/build079_sif_alias.py
+          python3 tools/build080_sif_f260.py
+          python3 tools/build081_sif_f2xx.py
+          python3 tools/build082_sif_f230.py
+          python3 tools/build083_bios_watchdog.py
+          python3 tools/build084_ee_ips.py
+          python3 tools/build085_sif_poll.py
+          python3 tools/build086_iop_bootstrap.py
+          python3 tools/build087_iop_cop0.py
+          python3 tools/build088_iop_sw.py
+          python3 tools/build089_iop_decode.py
+          python3 tools/build090_iop_slti.py
+          python3 tools/build091_iop_lw.py
+          python3 tools/build092_iop_dma_madr.py
+          python3 tools/build093_iop_addi.py
+          python3 tools/build094_iop_memctrl.py
+          python3 tools/build095_iop_memctrl_1020.py
+          python3 tools/build096_iop_memctrl_101c.py
+          python3 tools/build097_iop_memctrl_1004.py
+          python3 tools/build098_iop_mmio_2070.py
+          python3 tools/build099_iop_memctrl_1008.py
+          python3 tools/build100_iop_memctrl_1000.py
+          python3 tools/build101_checkpoint_audit.py
+          python3 tools/build103_menu_groups.py
+          python3 tools/build104_iop_memctrl_1014.py
+          python3 tools/build105_storage_paths.py
+          python3 tools/build108_ee_cpu_capture.py
+          python3 tools/build109_iop_cpu_capture.py
+          python3 tools/build114_cpu_checkpoint_validation.py
+          python3 tools/build115_iop_ram_capture.py
+          python3 tools/build116_ee_ram_capture.py
+          python3 tools/build117_combined_capture.py
+          python3 tools/build118_dmac_capture.py
+          python3 tools/build119_ee_timer_capture.py
+          python3 tools/build120_ee_intc_capture.py
+          python3 tools/build122_iop_memctrl_1018.py
+          python3 tools/build123_iop_memctrl_100c.py
+          python3 tools/build124_iop_memctrl_10f0.py
+          python3 tools/build125_iop_mmio_8268.py
+          python3 tools/build126_iop_mmio_8240.py
+          python3 tools/build127_iop_mmio_8248.py
+          python3 tools/build128_iop_mmio_8250.py
+          python3 tools/build129_iop_mmio_history.py
+          python3 tools/build130_iop_mmio_8244.py
+          python3 tools/build131_iop_mmio_824c.py
+          python3 tools/build132_iop_mmio_8254.py
+          python3 tools/build133_iop_bus_classifier.py
+          python3 tools/build134_iop_boot_bank.py
+          python3 tools/build135_iop_sb.py
+          python3 tools/build136_iop_cachectrl.py
+          python3 tools/build137_adaptive_watchdog.py
+          python3 tools/build138_sbus_bitops.py
+          python3 tools/build139_iop_lb.py
+          python3 tools/build140_iop_1060.py
+          python3 tools/build141_iop_sltu.py
+          python3 tools/build142_iop_alu_batch.py
+          python3 tools/build143_iop_lh.py
+          python3 tools/build144_iop_1fa0_diag.py
+          python3 tools/build145_iop_post3.py
+          python3 tools/build146_iop_sh_spu2.py
+          python3 tools/build147_iop_lhu.py
+          python3 tools/build148_iop_jalr.py
+          python3 tools/build149_iop_add.py
+          python3 tools/build150_log_identity.py
+          python3 tools/build151_iop_lw_forensics.py
+          python3 tools/build152_iop_lw_provenance.py
+          python3 tools/build153_iop_pointer_provenance.py
+          python3 tools/build154_iop_relocation_sw.py
+          python3 tools/build156_acceleration_runtime.py
+          python3 tools/build157_iop_fault_window.py
+          python3 tools/stage300_bdvd_overlay.py
+          # Existing Build 094 already records 4096 IOP instruction attempts.
+          # Build 121 redundant 64-entry trace patch intentionally disabled.
+          python3 -m py_compile tools/build087_iop_cop0.py tools/build088_iop_sw.py tools/build089_iop_decode.py tools/build090_iop_slti.py tools/build091_iop_lw.py tools/build092_iop_dma_madr.py tools/build093_iop_addi.py tools/build094_iop_memctrl.py tools/build095_iop_memctrl_1020.py tools/build096_iop_memctrl_101c.py tools/build097_iop_memctrl_1004.py tools/build098_iop_mmio_2070.py tools/build099_iop_memctrl_1008.py tools/build100_iop_memctrl_1000.py
+          grep -nE 'run_batch|log_stop|render_emu|instructions|ui_now_us|ips_' src/PS2-PS3-Bringup-035-SOURCE/source/emu_ui.inc | tail -85
+          python3 -m py_compile tools/build084_ee_ips.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/PS2-PS3-Bringup-035-SOURCE/source/emu_core.cpp')
+          s=p.read_text().splitlines()
+          for i,line in enumerate(s):
+            if any(k in line for k in ('switch(op','switch (op','case 0x12','case 18:','case 0x10','case 16:','Unsupported instruction','Primary instruction not implemented')):
+              print('COP2_INSPECT',i+1,repr(line[:220]))
+              for j in range(max(0,i-3),min(len(s),i+7)):print('COP2_CONTEXT',j+1,s[j][:240])
+          PY
+          (cd src && zip -qr "$GITHUB_WORKSPACE/PS2-PS3-Bringup-157-SOURCE.zip" PS2-PS3-Bringup-035-SOURCE)
+          echo 'Recovered Build 034 register test applied to Build 035 source tree'
+
+      - name: Configure and compile
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/ps3toolchain"
+          RULES="$(find "$ROOT" -type f -name ppu_rules -print -quit)"
+          test -n "$RULES" || { echo "::error::PSL1GHT ppu_rules missing"; exit 1; }
+          export PS3DEV="$ROOT/ps3dev"
+          export PSL1GHT="$PS3DEV"
+          export PATH="$PS3DEV/bin:$PS3DEV/ppu/bin:$PS3DEV/spu/bin:$PATH"
+          echo "PS3DEV=$PS3DEV"
+          echo "PSL1GHT=$PSL1GHT"
+          ls -la "$PS3DEV/ppu/bin" | head -45 || true
+          ls -la "$PS3DEV/bin" | head -45 || true
+          echo "Compiler candidates:"
+          command -v ppu-gcc || true
+          command -v powerpc64-ps3-elf-gcc || true
+          for compiler in ppu-gcc powerpc64-ps3-elf-gcc; do
+            if command -v "$compiler" >/dev/null 2>&1; then "$compiler" --version | head -1; fi
+          done
+          command -v ppu-gcc >/dev/null 2>&1 || { echo "::error::ppu-gcc not on PATH"; exit 1; }
+          cd src/PS2-PS3-Bringup-035-SOURCE
+          make -j2 2>&1 | tee "$GITHUB_WORKSPACE/build035.log"
+          echo "Available packaging tools:"
+          find "$PS3DEV" -type f \( -iname '*pkg*' -o -name 'sfo.py' \) | head -35 || true
+          make pkg 2>&1 | tee -a "$GITHUB_WORKSPACE/build035.log"
+          test -s ps2emu_bringup_035.pkg || { echo "::error::PKG was not generated"; exit 1; }
+          cp ps2emu_bringup_035.pkg "$GITHUB_WORKSPACE/Stage300_BDVD_Probe.pkg"
+          echo 'Stage300 compiled: source derived from PS2-Emulator-for-PS3, isolated title BDVP00300'
+
+      - name: Collect output
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cp -f checkpoint-readiness-build101.json artifacts/ 2>/dev/null || true
+          cp -f build035.log artifacts/ 2>/dev/null || true
+          cp -f Stage300_BDVD_Probe.pkg artifacts/ 2>/dev/null || true
+          find src/PS2-PS3-Bringup-035-SOURCE -maxdepth 2 -type f \( -name '*.elf' -o -name '*.self' -o -name '*.pkg' -o -name '*.map' \) -exec cp -f '{}' artifacts/ \; 2>/dev/null || true
+          cp -f PS2-PS3-Bringup-157-SOURCE.zip artifacts/ 2>/dev/null || true
+
+      - name: Upload build artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Stage300-BDVD-PS3-Release
+          path: artifacts/
+          if-no-files-found: warn
